@@ -1,6 +1,6 @@
 NaijaRescue Backend 🚑
 
-NaijaRescue is a mobile-first emergency response platform built to connect victims, responders, and agencies in real time during emergencies in Nigeria.
+NaijaRescue is a mobile-first emergency response platform built to connect victims, responders, and agencies in real-time during emergencies in Nigeria.
 
 This repository contains the backend API, designed with ASP.NET Core, following Onion Architecture and DDD (Domain-Driven Design) principles.
 
