@@ -1,23 +1,21 @@
 ﻿using Application.Interfaces.Repositories;
 using Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Infrastructure.Persistence.Context;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Persistence.Repositories
 {
     public class AgencyRepository : GenericRepository<Agency>, IAgencyRepository
     {
-        public AgencyRepository()
+        private readonly ProjectDbContext _dbContext;
+        public AgencyRepository(ProjectDbContext dbContext) : base(dbContext)
         {
-            
+            _dbContext = dbContext;
         }
         public Task<Agency?> GetAsync(Expression<Func<Agency, bool>> expression)
         {
-            throw new NotImplementedException();
+            return _dbContext.Agencies.AsNoTracking().FirstOrDefaultAsync(expression);
         }
     }
 }

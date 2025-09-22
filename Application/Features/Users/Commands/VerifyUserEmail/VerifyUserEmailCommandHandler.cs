@@ -4,7 +4,7 @@ using Application.Interfaces.Repositories;
 using Application.Interfaces.UnitOfWork;
 using MediatR;
 
-namespace Application.Features.Users.Comands.VerifyUserEmail
+namespace Application.Features.Users.Commands.VerifyUserEmail
 {
     public class VerifyUserEmailCommandHandler : IRequestHandler<VerifyUserEmailCommand, Result<bool>>
     {

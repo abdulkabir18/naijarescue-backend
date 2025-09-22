@@ -1,5 +1,4 @@
 ﻿using Application.Common.Dtos;
-using Application.Features.Users.Dtos;
 using Application.Interfaces.External;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.UnitOfWork;
@@ -7,9 +6,8 @@ using Domain.Common.Security;
 using Domain.Entities;
 using Domain.ValueObjects;
 using MediatR;
-using System.Numerics;
 
-namespace Application.Features.Users.Comands.RegisterUser
+namespace Application.Features.Users.Commands.RegisterUser
 {
     public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, Result<Guid>>
     {

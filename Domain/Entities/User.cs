@@ -112,6 +112,7 @@ namespace Domain.Entities
             ProfilePictureUrl = imageUrl;
         }
 
+
         public void SetAddress(Address newAddress) =>
             Address = newAddress ?? throw new ArgumentNullException(nameof(newAddress));
 

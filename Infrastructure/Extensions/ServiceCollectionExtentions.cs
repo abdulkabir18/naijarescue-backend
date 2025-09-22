@@ -96,6 +96,7 @@ namespace Infrastructure.Extensions
         {
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IAgencyRepository, AgencyRepository>();
 
             return services;
         }
