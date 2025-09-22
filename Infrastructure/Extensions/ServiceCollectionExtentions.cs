@@ -1,0 +1,104 @@
+﻿using Application.Common.Interfaces.Repositories;
+using Application.Interfaces.Auth;
+using Application.Interfaces.CurrentUser;
+using Application.Interfaces.External;
+using Application.Interfaces.Repositories;
+using Application.Interfaces.UnitOfWork;
+using brevo_csharp.Api;
+using brevo_csharp.Client;
+using Domain.Common.Security;
+using Infrastructure.Persistence.Context;
+using Infrastructure.Persistence.Repositories;
+using Infrastructure.Persistence.Seeding;
+using Infrastructure.Persistence.UnitOfWork;
+using Infrastructure.Security;
+using Infrastructure.Services;
+using Infrastructure.Services.Auth;
+using Infrastructure.Services.CurrentUser;
+using Infrastructure.Services.Email;
+using Infrastructure.Services.Storage;
+using Infrastructure.Settings;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Infrastructure.Extensions
+{
+    public static class ServiceCollectionExtentions
+    {
+        public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+        {
+            services.AddSingleton<IStorageService, GoogleDriveService>();
+            services.AddSingleton<IVerificationService, VerificationService>();
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
+            services.AddScoped<IAuthService, JwtService>();
+
+            return services;
+        }
+
+        public static IServiceCollection AddDbConnection(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddDbContext<ProjectDbContext>(options =>
+                options.UseMySql(
+                    configuration.GetConnectionString("AppString"),
+                    ServerVersion.AutoDetect(configuration.GetConnectionString("AppString"))
+                ));
+
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            return services;
+        }
+
+        public static IServiceCollection AddSecurity(this IServiceCollection services)
+        {
+            //services.Configure<PasswordHasherSettings>(configuration.GetSection("PasswordHasher"));
+            //services.Configure<PasswordHasherSettings>(configuration.GetSection("PasswordHasher"));
+    //        services.Configure<PasswordHasherSettings>(options =>
+    //configuration.GetSection("PasswordHasher").Bind(options));
+
+            services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
+
+            return services;
+        }
+
+        public static async Task SeedDatabaseAsync(this IServiceProvider services)
+        {
+            using var scope = services.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<ProjectDbContext>();
+            var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+
+            await DbInitializer.SeedAsync(context, passwordHasher);
+        }
+
+        public static IServiceCollection AddEmailService(this IServiceCollection services, IConfiguration configuration)
+        {
+            //services.Configure<EmailSettings>(opt => configuration.GetSection("Brevo"));
+
+            services.AddSingleton(provider =>
+            {
+                var config = new Configuration();
+                var apiKey = configuration["Brevo:ApiKey"];
+
+                if (string.IsNullOrEmpty(apiKey))
+                    throw new InvalidOperationException("Brevo API Key is not configured!");
+
+                config.AddApiKey("api-key", apiKey);
+
+                return new TransactionalEmailsApi(config);
+            });
+
+            services.AddScoped<IEmailService, BrevoEmailService>();
+
+            return services;
+        }
+
+        public static IServiceCollection AddRepositories(this IServiceCollection services)
+        {
+            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped<IUserRepository, UserRepository>();
+
+            return services;
+        }
+
+    }
+}
