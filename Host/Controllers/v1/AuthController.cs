@@ -1,8 +1,8 @@
 ﻿using Application.Common.Dtos;
 using Application.Features.Auth.Commands.LoginUser;
 using Application.Features.Auth.Dtos;
-using Application.Features.Users.Comands.RegisterUser;
-using Application.Features.Users.Comands.VerifyUserEmail;
+using Application.Features.Users.Commands.RegisterUser;
+using Application.Features.Users.Commands.VerifyUserEmail;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
