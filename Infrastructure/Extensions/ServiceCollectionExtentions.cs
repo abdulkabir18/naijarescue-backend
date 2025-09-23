@@ -6,6 +6,7 @@ using Application.Interfaces.Repositories;
 using Application.Interfaces.UnitOfWork;
 using brevo_csharp.Api;
 using brevo_csharp.Client;
+using brevo_csharp.Model;
 using Domain.Common.Security;
 using Infrastructure.Persistence.Context;
 using Infrastructure.Persistence.Repositories;
@@ -17,6 +18,7 @@ using Infrastructure.Services.Auth;
 using Infrastructure.Services.CurrentUser;
 using Infrastructure.Services.Email;
 using Infrastructure.Services.Storage;
+using Infrastructure.Services.Storage.Manager;
 using Infrastructure.Settings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -28,7 +30,6 @@ namespace Infrastructure.Extensions
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services)
         {
-            services.AddSingleton<IStorageService, GoogleDriveService>();
             services.AddSingleton<IVerificationService, VerificationService>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<IAuthService, JwtService>();
@@ -51,17 +52,12 @@ namespace Infrastructure.Extensions
 
         public static IServiceCollection AddSecurity(this IServiceCollection services)
         {
-            //services.Configure<PasswordHasherSettings>(configuration.GetSection("PasswordHasher"));
-            //services.Configure<PasswordHasherSettings>(configuration.GetSection("PasswordHasher"));
-    //        services.Configure<PasswordHasherSettings>(options =>
-    //configuration.GetSection("PasswordHasher").Bind(options));
-
             services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
 
             return services;
         }
 
-        public static async Task SeedDatabaseAsync(this IServiceProvider services)
+        public static async System.Threading.Tasks.Task SeedDatabaseAsync(this IServiceProvider services)
         {
             using var scope = services.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<ProjectDbContext>();
@@ -76,7 +72,7 @@ namespace Infrastructure.Extensions
 
             services.AddSingleton(provider =>
             {
-                var config = new Configuration();
+                var config = new brevo_csharp.Client.Configuration();
                 var apiKey = configuration["Brevo:ApiKey"];
 
                 if (string.IsNullOrEmpty(apiKey))
@@ -89,6 +85,15 @@ namespace Infrastructure.Extensions
 
             services.AddScoped<IEmailService, BrevoEmailService>();
 
+            return services;
+        }
+
+        public static IServiceCollection AddStorageService(this IServiceCollection services, IConfiguration configuration, string webRootPath)
+        {
+            services.AddSingleton(new LocalStorageService(webRootPath));
+            services.AddSingleton(new CloudinaryStorageService(configuration));
+
+            services.AddScoped<IStorageManager, StorageManager>();
             return services;
         }
 

@@ -21,10 +21,10 @@ namespace Host.Controllers.v1
         }
 
 
-        [HttpPost("register")]
+        [HttpPost("signup")]
         [ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Result<Guid>>> Register([FromForm] RegisterUserCommand command)
+        public async Task<ActionResult<Result<Guid>>> Signup([FromForm] RegisterUserCommand command)
         {
             var result = await _mediator.Send(command);
 

@@ -13,14 +13,14 @@ namespace Application.Features.Users.Commands.RegisterUser
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
-        private readonly IStorageService _storageService;
+        private readonly IStorageManager _storageManager;
         private readonly IUnitOfWork _unitOfWork;
 
-        public RegisterUserCommandHandler(IUserRepository userRepository, IPasswordHasher passwordHasher, IStorageService storageService, IUnitOfWork unitOfWork)
+        public RegisterUserCommandHandler(IUserRepository userRepository, IPasswordHasher passwordHasher, IStorageManager storageManager, IUnitOfWork unitOfWork)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
-            _storageService = storageService;
+            _storageManager = storageManager;
             _unitOfWork = unitOfWork;
         }
 
@@ -77,7 +77,7 @@ namespace Application.Features.Users.Commands.RegisterUser
             if (request.Model.ProfilePicture != null)
             {
                 using var stream = request.Model.ProfilePicture.OpenReadStream();
-                string url = await _storageService.UploadAsync(stream, $"{request.Model.ProfilePicture.FileName}_{Guid.NewGuid()}", request.Model.ProfilePicture.ContentType);
+                string url = await _storageManager.UploadProfileImageAsync(stream, request.Model.ProfilePicture.FileName, request.Model.ProfilePicture.ContentType);
 
                 user.SetProfilePicture(url);
             }
