@@ -1,4 +1,5 @@
 ﻿using Application.Common.Dtos;
+using Application.Features.Agencies.Commands.RegisterAgency;
 using Application.Features.Auth.Commands.LoginUser;
 using Application.Features.Auth.Dtos;
 using Application.Features.Users.Commands.RegisterUser;
@@ -34,6 +35,18 @@ namespace Host.Controllers.v1
             return Ok(result);
         }
 
+        [HttpPost("register-agency")]
+        [ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<Result<Guid>>> RegisterAgency([FromForm] RegisterAgencyCommand command)
+        {
+            var result = await _mediator.Send(command);
+
+            if (!result.Succeeded)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
 
         [HttpPost("login")]
         [ProducesResponseType(typeof(Result<LoginResponseModel>), StatusCodes.Status200OK)]

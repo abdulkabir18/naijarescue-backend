@@ -57,7 +57,7 @@ namespace Application.Features.Users.Commands.RegisterUser
 
             user.SetPassword($"{request.Model.Password}{user.Id}", _passwordHasher);
 
-            if(!string.IsNullOrEmpty(request.Model.UserName))
+            if (!string.IsNullOrEmpty(request.Model.UserName))
             {
                 bool isUserNameExist = await _userRepository.IsUserNameExistAsync(request.Model.UserName);
                 if (isUserNameExist)
@@ -68,10 +68,10 @@ namespace Application.Features.Users.Commands.RegisterUser
 
             if (request.Model.Address != null)
             {
-                if (string.IsNullOrEmpty(request.Model.Address.Street) || string.IsNullOrEmpty(request.Model.Address.City) || string.IsNullOrEmpty(request.Model.Address.LGA) || string.IsNullOrEmpty(request.Model.Address.Country) || string.IsNullOrEmpty(request.Model.Address.PostalCode))
+                if (string.IsNullOrEmpty(request.Model.Address.Street) || string.IsNullOrEmpty(request.Model.Address.State) || string.IsNullOrEmpty(request.Model.Address.City) || string.IsNullOrEmpty(request.Model.Address.LGA) || string.IsNullOrEmpty(request.Model.Address.Country) || string.IsNullOrEmpty(request.Model.Address.PostalCode))
                     return Result<Guid>.Failure("Address payload can not be empty");
 
-                user.SetAddress(new Address(request.Model.Address.Street, request.Model.Address.City, request.Model.Address.Street, request.Model.Address.LGA, request.Model.Address.Country, request.Model.Address.PostalCode));
+                user.SetAddress(new Address(request.Model.Address.Street, request.Model.Address.City, request.Model.Address.State, request.Model.Address.LGA, request.Model.Address.Country, request.Model.Address.PostalCode));
             }
 
             if (request.Model.ProfilePicture != null)

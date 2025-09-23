@@ -13,7 +13,7 @@ namespace Domain.Entities
         public ResponderStatus Status { get; private set; }
         public GeoLocation? AssignedLocation { get; private set; }
         public bool IsVerified { get; private set; }
-        
+
 
         public ICollection<ResponderSupportedWork> Capabilities { get; private set; } = [];
         public ICollection<ResponderSupportedIncident> Specialties { get; private set; } = [];

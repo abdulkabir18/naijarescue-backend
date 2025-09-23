@@ -4,7 +4,7 @@ using Domain.ValueObjects;
 
 namespace Domain.Entities
 {
-    public  class Agency : AuditableEntity
+    public class Agency : AuditableEntity
     {
         public string Name { get; private set; }
 
