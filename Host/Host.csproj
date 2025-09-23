@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <Folder Include="Configs\" />
+    <Folder Include="wwwroot\" />
   </ItemGroup>
 
 </Project>

@@ -41,6 +41,13 @@ packages/
 publish/
 wwwroot/lib/
 
+# Ignore everything inside wwwroot
+wwwroot/*
+
+# But keep the .gitkeep file so the folder exists in repo
+!wwwroot/.gitkeep
+
+
 # === Database Migrations ===
 Migrations/
 
