@@ -128,6 +128,9 @@ namespace Application.Features.Agencies.Commands.RegisterAgency
             if (_currentUserService.Role == UserRole.AgencyAdmin.ToString())
                 agency.Reactivate();
 
+            user.SetAgencyId(agency.Id);
+            agency.SetCreatedBy(currentUserId);
+
             await _userRepository.AddAsync(user);
             await _agencyRepository.AddAsync(agency);
 

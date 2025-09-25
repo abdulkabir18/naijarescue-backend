@@ -24,6 +24,11 @@ namespace Infrastructure.Persistence.Repositories
             return _dbContext.Agencies.AsNoTracking().AnyAsync(x => x.Email == new Email(email));
         }
 
+        public Task<bool> IsAgencyExist(Guid AgencyId)
+        {
+            return _dbContext.Agencies.AsNoTracking().AnyAsync(x => x.Id == AgencyId);
+        }
+
         public Task<bool> IsNameExistAsync(string name)
         {
             return _dbContext.Agencies.AsNoTracking().AnyAsync(x => x.Name == name);

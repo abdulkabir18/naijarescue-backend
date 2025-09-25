@@ -115,6 +115,12 @@ namespace Domain.Entities
         public void SetAddress(Address newAddress) =>
             Address = newAddress ?? throw new ArgumentNullException(nameof(newAddress));
 
+        public void SetAgencyId(Guid agencyId) =>
+            AgencyId = agencyId;
+        
+        public void SetResponderId(Guid responderId) =>
+            ResponderId = responderId;
+
         public void ChangeEmail(Email newEmail)
         {
             if(Email == newEmail)
