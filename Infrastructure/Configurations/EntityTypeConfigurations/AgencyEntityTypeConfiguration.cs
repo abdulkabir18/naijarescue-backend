@@ -39,10 +39,15 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
                 address.Property(ad => ad.Country).HasMaxLength(100);
             });
 
-            builder.HasMany(a => a.Users)
-                .WithOne()
+            builder.HasMany(a => a.Responders)
+                .WithOne(r => r.Agency)
                 .HasForeignKey(u => u.AgencyId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(a => a.AgencyAdmin)
+                .WithOne(a => a.Agency)
+                .HasForeignKey<Agency>(a => a.AgencyAdminId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(a => a.SupportedIncidents)
                 .WithOne()

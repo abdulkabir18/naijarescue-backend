@@ -41,34 +41,6 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
                     v => new PhoneNumber(v)
                 );
 
-
-            //builder.OwnsOne(u => u.Email, email =>
-            //{
-            //    email.Property(e => e.Value)
-            //    .HasColumnName("Email")
-            //    .IsRequired()
-            //    .HasMaxLength(200)
-            //    .HasConversion(
-            //        v => v,                
-            //        v => new Email(v)      
-            //    );
-            //    email.WithOwner();
-            //});
-
-            //builder.OwnsOne(u => u.PhoneNumber, phone =>
-            //{
-            //    phone.Property(p => p.Value)
-            //    .HasColumnName("PhoneNumber")
-            //    .IsRequired()
-            //    .HasMaxLength(18)
-            //    .HasConversion(
-            //        v => v,
-            //        v => new PhoneNumber(v)
-            //    );
-            //    phone.WithOwner();
-
-            //});
-
             builder.OwnsOne(u => u.Address, address =>
             {
                 address.Property(a => a.Street).HasMaxLength(200);
@@ -95,13 +67,17 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
                 ec.Property(e => e.OtherRelationship).HasMaxLength(80);
 
                 ec.WithOwner();
-                //ec.HasKey("UserId", "Name", "PhoneNumber_Value"); 
             });
 
 
             builder.HasOne(u => u.Agency)
-                .WithMany(a => a.Users)
-                .HasForeignKey(u => u.AgencyId)
+                .WithOne(a => a.AgencyAdmin)
+                .HasForeignKey<Agency>(u => u.AgencyAdminId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(u => u.Responder)
+                .WithOne(r => r.User)
+                .HasForeignKey<Responder>(r => r.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(u => u.Incidents)

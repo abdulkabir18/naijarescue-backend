@@ -2,9 +2,11 @@
 using Application.Features.Agencies.Commands.RegisterAgency;
 using Application.Features.Auth.Commands.LoginUser;
 using Application.Features.Auth.Dtos;
+using Application.Features.Responders.Commands.RegisterResponder;
 using Application.Features.Users.Commands.RegisterUser;
 using Application.Features.Users.Commands.VerifyUserEmail;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Host.Controllers.v1
@@ -35,10 +37,25 @@ namespace Host.Controllers.v1
             return Ok(result);
         }
 
+        [Authorize(Roles = "SuperAdmin")]
         [HttpPost("register-agency")]
         [ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Result<Guid>>> RegisterAgency([FromForm] RegisterAgencyCommand command)
+        {
+            var result = await _mediator.Send(command);
+
+            if (!result.Succeeded)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "SuperAdmin, AgencyAdmin")]
+        [HttpPost("register-responder")]
+        [ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<Result<Guid>>> RegisterResponder([FromForm] RegisterResponderCommand command)
         {
             var result = await _mediator.Send(command);
 

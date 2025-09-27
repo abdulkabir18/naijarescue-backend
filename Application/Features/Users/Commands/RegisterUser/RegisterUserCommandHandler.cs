@@ -39,15 +39,18 @@ namespace Application.Features.Users.Commands.RegisterUser
 
         public async Task<Result<Guid>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
         {
-            if (request.Model == null || request == null)
+            if (request.Model == null)
                 return Result<Guid>.Failure("Invalid request payload.");
 
-            bool isEmailExist = await _userRepository.IsEmailExistAsync(request.Model.Email);
-            if (isEmailExist)
+            Task<bool> isEmailExist = _userRepository.IsEmailExistAsync(request.Model.Email);
+            Task<bool> isPhoneNumberExist = _userRepository.IsPhoneNumberExistAsync(request.Model.PhoneNumber);
+
+            await Task.WhenAll(isEmailExist, isPhoneNumberExist);
+
+            if (await isEmailExist)
                 return Result<Guid>.Failure($"Email {request.Model.Email} is associated with another account.");
 
-            bool isPhoneNumberExist = await _userRepository.IsPhoneNumberExistAsync(request.Model.PhoneNumber);
-            if (isPhoneNumberExist)
+            if (await isPhoneNumberExist)
                 return Result<Guid>.Failure($"PhoneNumber {request.Model.PhoneNumber} is associated with another account.");
 
             string fullName = BuildFullName(request.Model.FirstName, request.Model.LastName);
@@ -68,10 +71,7 @@ namespace Application.Features.Users.Commands.RegisterUser
 
             if (request.Model.Address != null)
             {
-                if (string.IsNullOrEmpty(request.Model.Address.Street) || string.IsNullOrEmpty(request.Model.Address.State) || string.IsNullOrEmpty(request.Model.Address.City) || string.IsNullOrEmpty(request.Model.Address.LGA) || string.IsNullOrEmpty(request.Model.Address.Country) || string.IsNullOrEmpty(request.Model.Address.PostalCode))
-                    return Result<Guid>.Failure("Address payload can not be empty");
-
-                user.SetAddress(new Address(request.Model.Address.Street, request.Model.Address.City, request.Model.Address.State, request.Model.Address.LGA, request.Model.Address.Country, request.Model.Address.PostalCode));
+                user.SetAddress(new Address(request.Model.Address.Street!, request.Model.Address.City!, request.Model.Address.State!, request.Model.Address.LGA!, request.Model.Address.Country!, request.Model.Address.PostalCode!));
             }
 
             if (request.Model.ProfilePicture != null)

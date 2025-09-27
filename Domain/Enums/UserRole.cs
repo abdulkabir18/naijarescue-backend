@@ -11,7 +11,8 @@ namespace Domain.Enums
         [Display(Name = "Responder")]
         Responder,
         [Display(Name = "Victim")]
-        Victim
+        Victim,
+        Unknown
     }
 
 }

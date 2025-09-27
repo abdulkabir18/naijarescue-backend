@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces.CurrentUser;
+using Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
@@ -14,10 +15,10 @@ namespace Infrastructure.Services.CurrentUser
         }
 
         public Guid UserId =>
-            Guid.TryParse(_httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : Guid.Empty;
+            Guid.TryParse(_httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier), out Guid id) ? id : Guid.Empty;
 
-        public string Role =>
-           _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Role) ?? string.Empty;
+        public UserRole Role =>
+           Enum.TryParse(_httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Role), out UserRole role) ? role : UserRole.Unknown;
 
         public string Email =>
             _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Email) ?? string.Empty;
