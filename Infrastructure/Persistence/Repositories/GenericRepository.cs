@@ -24,15 +24,15 @@ namespace Infrastructure.Persistence.Repositories
 
         public Task DeleteAsync(T entity)
         {
-            entity.SoftDelete();      
-            _dbSet.Update(entity);   
+            entity.SoftDelete();
+            _dbSet.Update(entity);
             return Task.CompletedTask;
         }
 
-        public async Task<bool> ExistsAsync(Guid id)
-        {
-            return await _dbSet.AnyAsync(e => e.Id == id && !e.IsDeleted);
-        }
+        // public async Task<bool> ExistsAsync(Guid id)
+        // {
+        //     return await _dbSet.AnyAsync(e => e.Id == id && !e.IsDeleted);
+        // }
 
         public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> expression)
         {

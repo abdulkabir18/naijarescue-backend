@@ -19,9 +19,12 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
             builder.Property(u => u.IsDeleted);
             builder.Property(u => u.FullName).IsRequired().HasMaxLength(250);
             builder.Property(u => u.PasswordHash).IsRequired(false);
-            builder.Property(u => u.Role).IsRequired();
             builder.Property(u => u.UserName).IsRequired(false).HasMaxLength(100);
             builder.Property(u => u.ProfilePictureUrl).IsRequired(false).HasMaxLength(555);
+            builder.Property(u => u.Role).HasConversion<string>().IsRequired();
+            builder.Property(u => u.IsActive).IsRequired();
+            builder.Property(u => u.GoogleId).HasMaxLength(255);
+            builder.Property(u => u.GoogleAuthenticatorSecretKey).HasMaxLength(255);
 
             builder.Property(u => u.Email)
                 .HasColumnName("Email")
@@ -83,6 +86,12 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
             builder.HasMany(u => u.Incidents)
                 .WithOne(i => i.User)
                 .HasForeignKey(i => i.UserId);
+
+            builder.HasMany(u => u.Notifications)
+                .WithOne(n => n.Recipient)
+                .HasForeignKey(n => n.RecipientId)
+                .OnDelete(DeleteBehavior.Cascade);
+
         }
     }
 }

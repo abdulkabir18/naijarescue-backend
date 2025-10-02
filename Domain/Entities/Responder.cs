@@ -19,7 +19,7 @@ namespace Domain.Entities
 
         public ICollection<ResponderSupportedWork> Capabilities { get; private set; } = [];
         public ICollection<ResponderSupportedIncident> Specialties { get; private set; } = [];
-        public ICollection<Incident> AssignedIncidents { get; private set; } = [];
+        public ICollection<IncidentResponder> IncidentAssignments { get; private set; } = [];
 
         private Responder() { }
 
@@ -34,7 +34,6 @@ namespace Domain.Entities
         public void SetBadgeNumber(string badgeNumber) => BadgeNumber = badgeNumber;
         public void SetRank(string rank) => Rank = rank;
         public void UpdateResponderStatus(ResponderStatus status) => Status = status;
-
         public void AssignLocation(GeoLocation location) => AssignedLocation = location;
 
         public void UpdateCurrentLocation(GeoLocation location)
@@ -61,7 +60,7 @@ namespace Domain.Entities
                 Capabilities.Remove(work);
         }
 
-        public void AddSpecialty(IncidentType type, Guid responderId)
+        public void AddSpeciality(IncidentType type, Guid responderId)
         {
             if (Specialties.Any(s => s.Type == type && s.ResponderId == responderId))
                 throw new InvalidOperationException($"Incident type '{type}' is already supported.");
@@ -72,12 +71,13 @@ namespace Domain.Entities
             Specialties.Add(new ResponderSupportedIncident(responderId, type));
         }
 
-        public void RemoveSpecialty(Guid incidentId)
+        public void RemoveSpeciality(Guid incidentId)
         {
             var incident = Specialties.FirstOrDefault(c => c.Id == incidentId);
             if (incident != null)
                 Specialties.Remove(incident);
         }
+
         public void Verify() => IsVerified = true;
         public void Unverify() => IsVerified = false;
     }

@@ -22,13 +22,16 @@ namespace Infrastructure.Persistence.Context
         public DbSet<Agency> Agencies { get; set; } = default!;
         public DbSet<Responder> Responders { get; set; } = default!;
         public DbSet<Incident> Incidents { get; set; } = default!;
+        public DbSet<IncidentResponder> IncidentResponders { get; set; } = default!;
         public DbSet<IncidentLiveStream> IncidentLiveStreams { get; set; } = default!;
         public DbSet<IncidentLiveStreamParticipant> IncidentLiveStreamParticipants { get; set; } = default!;
         public DbSet<IncidentMedia> IncidentMedias { get; set; } = default!;
         public DbSet<AgencySupportedIncident> AgencySupportedIncidents { get; set; } = default!;
         public DbSet<AgencySupportedWork> AgencySupportedWorks { get; set; } = default!;
-        public DbSet<ResponderSupportedIncident> ResponderSupportedIncidents{ get; set; } = default!;
-        public DbSet<ResponderSupportedWork> ResponderSupportedWorks{ get; set; } = default!;
+        public DbSet<ResponderSupportedIncident> ResponderSupportedIncidents { get; set; } = default!;
+        public DbSet<ResponderSupportedWork> ResponderSupportedWorks { get; set; } = default!;
+        public DbSet<Notification> Notifications { get; set; } = default!;
+        public DbSet<AuditLog> AuditLogs { get; set; } = default!;
 
 
         internal async Task DispatchDomainEventsAsync()

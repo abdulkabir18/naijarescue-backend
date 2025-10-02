@@ -22,7 +22,7 @@ namespace Domain.Entities
         public bool IsPhoneNumberVerified { get; private set; }
         public bool TwoFactorEnabled { get; private set; }
         public string? GoogleAuthenticatorSecretKey { get; private set; }
-        public string? GoogleId { get; private set; } 
+        public string? GoogleId { get; private set; }
 
         public UserRole Role { get; private set; }
         public bool IsActive { get; private set; }
@@ -32,11 +32,9 @@ namespace Domain.Entities
         public Responder? Responder { get; private set; }
         public Agency? Agency { get; private set; } = default!;
 
-        private readonly HashSet<EmergencyContact> _emergencyContacts = new();
-        public IReadOnlyCollection<EmergencyContact> EmergencyContacts => _emergencyContacts;
-
-        private readonly HashSet<Incident> _incidents = new();
-        public IReadOnlyCollection<Incident> Incidents => _incidents;
+        public ICollection<EmergencyContact> EmergencyContacts { get; private set; } = [];
+        public ICollection<Incident> Incidents { get; private set; } = [];
+        public ICollection<Notification> Notifications { get; private set; } = [];
 
         private User() { }
 
@@ -70,7 +68,7 @@ namespace Domain.Entities
                 Gender = gender,
                 Role = role,
                 IsActive = true,
-                IsEmailVerified = true, 
+                IsEmailVerified = true,
                 IsPhoneNumberVerified = false,
                 TwoFactorEnabled = false
             };
@@ -79,7 +77,7 @@ namespace Domain.Entities
             return user;
         }
 
-            
+
         public void SetPassword(string rawPassword, IPasswordHasher hasher)
         {
             if (string.IsNullOrWhiteSpace(rawPassword))
@@ -117,13 +115,13 @@ namespace Domain.Entities
 
         public void SetAgencyId(Guid agencyId) =>
             AgencyId = agencyId;
-        
+
         public void SetResponderId(Guid responderId) =>
             ResponderId = responderId;
 
         public void ChangeEmail(Email newEmail)
         {
-            if(Email == newEmail)
+            if (Email == newEmail)
                 throw new ValidationException("New email cannot be the same as the old one.");
 
             Email = newEmail ?? throw new ArgumentNullException(nameof(newEmail));

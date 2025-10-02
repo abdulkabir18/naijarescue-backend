@@ -123,7 +123,7 @@ namespace Application.Features.Responders.Commands.RegisterResponder
                 if (!Enum.IsDefined(typeof(IncidentType), specialty.AcceptedIncidentType))
                     return Result<Guid>.Failure($"Invalid incident type: {specialty.AcceptedIncidentType}");
 
-                responder.AddSpecialty(specialty.AcceptedIncidentType, responder.Id);
+                responder.AddSpeciality(specialty.AcceptedIncidentType, responder.Id);
             }
 
             if (_currentUserService.Role == UserRole.AgencyAdmin || _currentUserService.Role == UserRole.SuperAdmin)

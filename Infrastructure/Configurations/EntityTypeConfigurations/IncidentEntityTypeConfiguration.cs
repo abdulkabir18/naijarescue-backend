@@ -1,11 +1,6 @@
 ﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Configurations.EntityTypeConfigurations
 {
@@ -25,11 +20,19 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
             builder.Property(i => i.Status).HasConversion<int>().IsRequired();
             builder.Property(i => i.OccurredAt).IsRequired();
             builder.Property(i => i.IsAnonymous).IsRequired();
+            builder.Property(i => i.ReferenceCode).IsRequired().HasMaxLength(50);
+            builder.HasIndex(i => i.ReferenceCode).IsUnique();
+            builder.Property(i => i.ReporterName).HasMaxLength(150);
 
             builder.OwnsOne(i => i.Location, location =>
             {
-                location.Property(l => l.Latitude).HasColumnName("Latitude").HasPrecision(9, 6);
-                location.Property(l => l.Longitude).HasColumnName("Longitude").HasPrecision(9, 6);
+                location.Property(l => l.Latitude)
+                        .HasColumnName("Latitude")
+                        .HasPrecision(9, 6);
+
+                location.Property(l => l.Longitude)
+                        .HasColumnName("Longitude")
+                        .HasPrecision(9, 6);
             });
 
             builder.OwnsOne(a => a.Address, address =>
@@ -43,27 +46,36 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
 
             builder.OwnsOne(a => a.ReporterEmail, email =>
             {
-                email.Property(e => e.Value).HasColumnName("ReporterEmail").IsRequired(false).HasMaxLength(255);
+                email.Property(e => e.Value)
+                     .HasColumnName("ReporterEmail")
+                     .IsRequired(false)
+                     .HasMaxLength(255);
             });
 
             builder.OwnsOne(a => a.ReporterPhoneNumber, phone =>
             {
-                phone.Property(p => p.Value).HasColumnName("ReporterPhoneNumber").IsRequired(false).HasMaxLength(18);
+                phone.Property(p => p.Value)
+                     .HasColumnName("ReporterPhoneNumber")
+                     .IsRequired(false)
+                     .HasMaxLength(18);
             });
 
             builder.HasOne(i => i.User)
-                .WithMany()
-                .HasForeignKey(i => i.UserId)
-                .OnDelete(DeleteBehavior.SetNull);
+                   .WithMany(u => u.Incidents)
+                   .HasForeignKey(i => i.UserId)
+                   .OnDelete(DeleteBehavior.SetNull);
 
-            builder.HasOne(i => i.AssignedResponder)
-                .WithMany()
-                .HasForeignKey(i => i.AssignedResponderId)
-                .OnDelete(DeleteBehavior.SetNull);
+            builder.HasMany(i => i.AssignedResponders)
+                   .WithOne(ar => ar.Incident)
+                   .HasForeignKey(ar => ar.IncidentId);
 
             builder.HasMany(i => i.IncidentMedias)
-                .WithOne(m => m.Incident)
-                .HasForeignKey(m => m.IncidentId);
+                   .WithOne(m => m.Incident)
+                   .HasForeignKey(m => m.IncidentId);
+
+            builder.HasMany(i => i.LiveStreams)
+                   .WithOne(ls => ls.Incident)
+                   .HasForeignKey(ls => ls.IncidentId);
         }
     }
 }
