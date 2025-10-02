@@ -8,6 +8,7 @@ namespace Domain.Entities
         public Guid IncidentId { get; private set; }
         public GeoLocation Location { get; private set; }
         public DateTime RecordedAt { get; private set; } = DateTime.UtcNow;
+        public Incident Incident { get; private set; } = default!;
 
         private IncidentLocationUpdate() { }
 

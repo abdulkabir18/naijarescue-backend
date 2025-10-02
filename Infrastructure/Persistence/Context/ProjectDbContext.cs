@@ -30,6 +30,7 @@ namespace Infrastructure.Persistence.Context
         public DbSet<AgencySupportedWork> AgencySupportedWorks { get; set; } = default!;
         public DbSet<ResponderSupportedIncident> ResponderSupportedIncidents { get; set; } = default!;
         public DbSet<ResponderSupportedWork> ResponderSupportedWorks { get; set; } = default!;
+        public DbSet<IncidentLocationUpdate> IncidentLocationUpdates { get; set; } = default!;
         public DbSet<Notification> Notifications { get; set; } = default!;
         public DbSet<AuditLog> AuditLogs { get; set; } = default!;
 

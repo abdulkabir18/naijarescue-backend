@@ -20,6 +20,10 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
             builder.Property(a => a.LogoUrl).HasMaxLength(500);
             builder.Property(a => a.IsActive).IsRequired();
 
+            builder.HasIndex(a => a.Email).IsUnique();
+            builder.HasIndex(a => a.PhoneNumber).IsUnique();
+            builder.HasIndex(a => a.Name).IsUnique();
+
             builder.OwnsOne(a => a.Email, email =>
             {
                 email.Property(e => e.Value).HasColumnName("Email").IsRequired().HasMaxLength(255);
@@ -50,12 +54,12 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(a => a.SupportedIncidents)
-                .WithOne()
+                .WithOne(s => s.Agency)
                 .HasForeignKey(si => si.AgencyId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasMany(a => a.SupportedWorkTypes)
-                .WithOne()
+                .WithOne(s => s.Agency)
                 .HasForeignKey(sw => sw.AgencyId)
                 .OnDelete(DeleteBehavior.Cascade);
         }

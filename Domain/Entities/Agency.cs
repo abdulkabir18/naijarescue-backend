@@ -54,12 +54,16 @@ namespace Domain.Entities
 
         public void AddSupportedIncident(IncidentType type)
         {
-            SupportedIncidents.Add(new AgencySupportedIncident(this.Id, type));
+            if (SupportedIncidents.Any(si => si.Type == type))
+                throw new InvalidOperationException($"Incident type '{type}' already supported.");
+            SupportedIncidents.Add(new AgencySupportedIncident(Id, type));
         }
 
         public void AddSupportedWorkType(WorkType type)
         {
-            SupportedWorkTypes.Add(new AgencySupportedWork(this.Id, type));
+            if (SupportedWorkTypes.Any(sw => sw.Type == type))
+                throw new InvalidOperationException($"Work type '{type}' already supported.");
+            SupportedWorkTypes.Add(new AgencySupportedWork(Id, type));
         }
 
         public void RemoveSupportedIncident(Guid supportedIncidentId)
@@ -76,7 +80,13 @@ namespace Domain.Entities
                 SupportedWorkTypes.Remove(work);
         }
 
-        public void Deactivate() => IsActive = false;
         public void Reactivate() => IsActive = true;
+
+        public void Deactivate()
+        {
+            IsActive = false;
+            foreach (var responder in Responders)
+                responder.UpdateResponderStatus(ResponderStatus.Unreachable);
+        }
     }
 }

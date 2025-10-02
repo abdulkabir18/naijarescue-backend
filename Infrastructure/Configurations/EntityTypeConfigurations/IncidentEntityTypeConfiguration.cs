@@ -16,13 +16,13 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
             builder.Property(a => a.UpdatedAt);
             builder.Property(a => a.DeletedAt);
             builder.Property(a => a.IsDeleted).IsRequired();
+
             builder.Property(i => i.Type).HasConversion<int>().IsRequired();
             builder.Property(i => i.Status).HasConversion<int>().IsRequired();
             builder.Property(i => i.OccurredAt).IsRequired();
             builder.Property(i => i.IsAnonymous).IsRequired();
             builder.Property(i => i.ReferenceCode).IsRequired().HasMaxLength(50);
             builder.HasIndex(i => i.ReferenceCode).IsUnique();
-            builder.Property(i => i.ReporterName).HasMaxLength(150);
 
             builder.OwnsOne(i => i.Location, location =>
             {
@@ -35,7 +35,7 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
                         .HasPrecision(9, 6);
             });
 
-            builder.OwnsOne(a => a.Address, address =>
+            builder.OwnsOne(i => i.Address, address =>
             {
                 address.Property(ad => ad.Street).HasMaxLength(200);
                 address.Property(ad => ad.City).HasMaxLength(100);
@@ -44,20 +44,42 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
                 address.Property(ad => ad.Country).HasMaxLength(100);
             });
 
-            builder.OwnsOne(a => a.ReporterEmail, email =>
+            builder.OwnsOne(i => i.Reporter, reporter =>
             {
-                email.Property(e => e.Value)
-                     .HasColumnName("ReporterEmail")
-                     .IsRequired(false)
-                     .HasMaxLength(255);
-            });
+                reporter.Property(r => r.Name).HasMaxLength(150);
 
-            builder.OwnsOne(a => a.ReporterPhoneNumber, phone =>
+                reporter.OwnsOne(r => r.Email, email =>
+                {
+                    email.Property(e => e.Value)
+                         .HasColumnName("ReporterEmail")
+                         .HasMaxLength(255);
+                });
+
+                reporter.OwnsOne(r => r.PhoneNumber, phone =>
+                {
+                    phone.Property(p => p.Value)
+                         .HasColumnName("ReporterPhoneNumber")
+                         .HasMaxLength(18);
+                });
+            });
+            builder.OwnsOne(i => i.Victim, victim =>
             {
-                phone.Property(p => p.Value)
-                     .HasColumnName("ReporterPhoneNumber")
-                     .IsRequired(false)
-                     .HasMaxLength(18);
+                victim.Property(v => v.Name).HasMaxLength(150);
+                victim.Property(v => v.Description).HasMaxLength(500);
+
+                victim.OwnsOne(v => v.Email, email =>
+                {
+                    email.Property(e => e.Value)
+                         .HasColumnName("VictimEmail")
+                         .HasMaxLength(255);
+                });
+
+                victim.OwnsOne(v => v.PhoneNumber, phone =>
+                {
+                    phone.Property(p => p.Value)
+                         .HasColumnName("VictimPhoneNumber")
+                         .HasMaxLength(18);
+                });
             });
 
             builder.HasOne(i => i.User)
@@ -76,6 +98,11 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
             builder.HasMany(i => i.LiveStreams)
                    .WithOne(ls => ls.Incident)
                    .HasForeignKey(ls => ls.IncidentId);
+
+            builder.HasMany(i => i.LocationUpdates)
+                   .WithOne(lu => lu.Incident)
+                   .HasForeignKey(lu => lu.IncidentId);
         }
     }
+
 }
