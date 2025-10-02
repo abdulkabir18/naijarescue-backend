@@ -82,6 +82,11 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
                 });
             });
 
+            builder.HasOne(i => i.Chat)
+                   .WithOne(c => c.Incident)
+                   .HasForeignKey<Incident>(i => i.ChatId)
+                   .OnDelete(DeleteBehavior.SetNull);
+
             builder.HasOne(i => i.User)
                    .WithMany(u => u.Incidents)
                    .HasForeignKey(i => i.UserId)

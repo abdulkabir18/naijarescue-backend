@@ -34,6 +34,8 @@ namespace Domain.Entities
 
         public ICollection<EmergencyContact> EmergencyContacts { get; private set; } = [];
         public ICollection<Incident> Incidents { get; private set; } = [];
+        public ICollection<ChatParticipant> ChatParticipations { get; private set; } = [];
+        public ICollection<Message> Messages { get; private set; } = [];
         public ICollection<IncidentLiveStreamParticipant> LiveStreamParticipations { get; private set; } = [];
         public ICollection<Notification> Notifications { get; private set; } = [];
 

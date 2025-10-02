@@ -20,6 +20,7 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
             builder.Property(u => u.FullName).IsRequired().HasMaxLength(250);
             builder.Property(u => u.PasswordHash).IsRequired(false);
             builder.Property(u => u.UserName).IsRequired(false).HasMaxLength(100);
+            builder.HasIndex(u => u.UserName).IsUnique(true);
             builder.Property(u => u.ProfilePictureUrl).IsRequired(false).HasMaxLength(555);
             builder.Property(u => u.Role).HasConversion<string>().IsRequired();
             builder.Property(u => u.IsActive).IsRequired();
@@ -50,7 +51,6 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
                 address.Property(a => a.City).HasMaxLength(100);
                 address.Property(a => a.State).HasMaxLength(100);
                 address.Property(a => a.PostalCode).HasMaxLength(20);
-                address.WithOwner();
             });
 
             builder.OwnsMany(u => u.EmergencyContacts, ec =>
@@ -58,20 +58,30 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
                 ec.ToTable("UserEmergencyContacts");
                 ec.WithOwner().HasForeignKey("UserId");
                 ec.Property(e => e.Name).IsRequired().HasMaxLength(100);
+
                 ec.OwnsOne(e => e.PhoneNumber, pn =>
                 {
                     pn.Property(p => p.Value).HasColumnName("EmergencyPhoneNumber").HasMaxLength(18);
                 });
+
                 ec.OwnsOne(e => e.Email, email =>
                 {
                     email.Property(e => e.Value).HasColumnName("EmergencyEmail").HasMaxLength(200);
                 });
+
                 ec.Property(e => e.Relationship).IsRequired();
                 ec.Property(e => e.OtherRelationship).HasMaxLength(80);
-
-                ec.WithOwner();
             });
 
+            builder.HasMany(u => u.ChatParticipations)
+                .WithOne(c => c.User)
+                .HasForeignKey(u => u.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(u => u.Messages)
+                .WithOne(m => m.Sender)
+                .HasForeignKey(s => s.SenderId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(u => u.Agency)
                 .WithOne(a => a.AgencyAdmin)
@@ -85,7 +95,12 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
 
             builder.HasMany(u => u.Incidents)
                 .WithOne(i => i.User)
-                .HasForeignKey(i => i.UserId);
+                .HasForeignKey(i => i.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+            builder.HasMany(u => u.LiveStreamParticipations)
+            .WithOne(l => l.User)
+            .HasForeignKey(u => u.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(u => u.Notifications)
                 .WithOne(n => n.Recipient)

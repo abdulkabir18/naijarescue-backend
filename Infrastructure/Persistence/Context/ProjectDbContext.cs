@@ -22,6 +22,9 @@ namespace Infrastructure.Persistence.Context
         public DbSet<Agency> Agencies { get; set; } = default!;
         public DbSet<Responder> Responders { get; set; } = default!;
         public DbSet<Incident> Incidents { get; set; } = default!;
+        public DbSet<Chat> Chats { get; set; } = default!;
+        public DbSet<ChatParticipant> ChatParticipants { get; set; } = default!;
+        public DbSet<Message> Messages { get; set; } = default!;
         public DbSet<IncidentResponder> IncidentResponders { get; set; } = default!;
         public DbSet<IncidentLiveStream> IncidentLiveStreams { get; set; } = default!;
         public DbSet<IncidentLiveStreamParticipant> IncidentLiveStreamParticipants { get; set; } = default!;
