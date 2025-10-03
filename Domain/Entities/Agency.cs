@@ -7,23 +7,17 @@ namespace Domain.Entities
     public class Agency : AuditableEntity
     {
         public string Name { get; private set; }
-
         public Email Email { get; private set; }
         public PhoneNumber PhoneNumber { get; private set; }
-
         public string? LogoUrl { get; private set; }
         public Address? Address { get; private set; }
-
         public bool IsActive { get; private set; }
-
         public Guid AgencyAdminId { get; private set; }
         public User AgencyAdmin { get; private set; } = default!;
 
         public ICollection<AgencySupportedIncident> SupportedIncidents { get; private set; } = [];
         public ICollection<AgencySupportedWork> SupportedWorkTypes { get; private set; } = [];
-
         public ICollection<Responder> Responders { get; private set; } = [];
-        //public ICollection<EmergencyReport> RespondedIncidents { get; private set; } = new List<EmergencyReport>();
 
         private Agency() { }
 

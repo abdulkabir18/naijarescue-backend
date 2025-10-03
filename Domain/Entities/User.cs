@@ -140,6 +140,62 @@ namespace Domain.Entities
             IsPhoneNumberVerified = false;
         }
 
+        public void AddEmergencyContact(string name, PhoneNumber phoneNumber, Email email, RelationshipType relationship, string? otherRelationship = null)
+        {
+            var contact = new EmergencyContact(name, phoneNumber, email, relationship, otherRelationship);
+
+            if (EmergencyContacts.Any(c =>
+                (c.PhoneNumber != null && c.PhoneNumber == contact.PhoneNumber) ||
+                (c.Email != null && c.Email == contact.Email)))
+            {
+                throw new DomainException("An emergency contact with this phone or email already exists.");
+            }
+
+            EmergencyContacts.Add(contact);
+        }
+
+        public void RemoveEmergencyContact(PhoneNumber? phoneNumber, Email? email)
+        {
+            var contact = EmergencyContacts.FirstOrDefault(c =>
+                (phoneNumber != null && c.PhoneNumber == phoneNumber) ||
+                (email != null && c.Email == email));
+
+            if (contact == null)
+                throw new DomainException("Emergency contact not found.");
+
+            EmergencyContacts.Remove(contact);
+        }
+
+        public void UpdateEmergencyContact(PhoneNumber? phoneNumber, Email? email, string? newName = null, RelationshipType? newRelationship = null, string? newOther = null)
+        {
+            var contact = EmergencyContacts.FirstOrDefault(c =>
+                (phoneNumber != null && c.PhoneNumber == phoneNumber) ||
+                (email != null && c.Email == email));
+
+            if (contact == null)
+                throw new DomainException("Emergency contact not found.");
+
+            var updated = new EmergencyContact(
+                newName ?? contact.Name,
+                contact.PhoneNumber!,
+                contact.Email!,
+                newRelationship ?? contact.Relationship,
+                newOther ?? contact.OtherRelationship
+            );
+
+            if (EmergencyContacts.Any(c =>
+                c != contact &&
+                ((c.PhoneNumber != null && c.PhoneNumber == updated.PhoneNumber) ||
+                 (c.Email != null && c.Email == updated.Email))))
+            {
+                throw new DomainException("Another emergency contact with this phone or email already exists.");
+            }
+
+            EmergencyContacts.Remove(contact);
+            EmergencyContacts.Add(updated);
+        }
+
+
         public void VerifyEmail() => IsEmailVerified = true;
         public void VerifyPhoneNumber() => IsPhoneNumberVerified = true;
 
