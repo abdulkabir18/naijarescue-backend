@@ -88,10 +88,10 @@ namespace Infrastructure.Extensions
             return services;
         }
 
-        public static IServiceCollection AddStorageService(this IServiceCollection services, IConfiguration configuration, string webRootPath)
+        public static IServiceCollection AddStorageService(this IServiceCollection services, string webRootPath)
         {
             services.AddSingleton(new LocalStorageService(webRootPath));
-            services.AddSingleton(new CloudinaryStorageService(configuration));
+            services.AddSingleton<CloudinaryStorageService>();
 
             services.AddScoped<IStorageManager, StorageManager>();
             return services;

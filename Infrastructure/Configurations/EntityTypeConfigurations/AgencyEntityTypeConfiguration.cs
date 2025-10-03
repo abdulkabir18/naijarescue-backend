@@ -20,9 +20,9 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
             builder.Property(a => a.LogoUrl).HasMaxLength(500);
             builder.Property(a => a.IsActive).IsRequired();
 
-            builder.HasIndex(a => a.Email).IsUnique();
-            builder.HasIndex(a => a.PhoneNumber).IsUnique();
-            builder.HasIndex(a => a.Name).IsUnique();
+            // builder.HasIndex(a => a.Email).IsUnique();
+            // builder.HasIndex(a => a.PhoneNumber).IsUnique();
+            // builder.HasIndex(a => a.Name).IsUnique();
 
             builder.OwnsOne(a => a.Email, email =>
             {
