@@ -22,7 +22,7 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
             builder.Property(u => u.UserName).IsRequired(false).HasMaxLength(100);
             builder.HasIndex(u => u.UserName).IsUnique(true);
             builder.Property(u => u.ProfilePictureUrl).IsRequired(false).HasMaxLength(555);
-            builder.Property(u => u.Role).HasConversion<string>().IsRequired();
+            builder.Property(u => u.Role).HasConversion<int>().IsRequired();
             builder.Property(u => u.IsActive).IsRequired();
             builder.Property(u => u.GoogleId).HasMaxLength(255);
             builder.Property(u => u.GoogleAuthenticatorSecretKey).HasMaxLength(255);

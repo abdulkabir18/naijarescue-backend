@@ -54,19 +54,13 @@ namespace Application.Features.Responders.Commands.RegisterResponder
             if (currentUserId == Guid.Empty)
                 return Result<Guid>.Failure("User is not authenticated.");
 
-            Task<bool> isEmailExist = _userRepository.IsEmailExistAsync(request.Model.RegisterUserRequest.Email);
-            Task<bool> isPhoneNumberExist = _userRepository.IsPhoneNumberExistAsync(request.Model.RegisterUserRequest.PhoneNumber);
-            Task<bool> isAgencyExist = _agencyRepository.IsAgencyExist(request.Model.AgencyId);
-
-            await Task.WhenAll(isEmailExist, isPhoneNumberExist, isAgencyExist);
-
-            if (!await isAgencyExist)
+            if (!await _agencyRepository.IsAgencyExist(request.Model.AgencyId))
                 return Result<Guid>.Failure("Agency does not exist.");
 
-            if (await isEmailExist)
+            if (await _userRepository.IsEmailExistAsync(request.Model.RegisterUserRequest.Email))
                 return Result<Guid>.Failure($"Email {request.Model.RegisterUserRequest.Email} already exists.");
 
-            if (await isPhoneNumberExist)
+            if (await _userRepository.IsPhoneNumberExistAsync(request.Model.RegisterUserRequest.PhoneNumber))
                 return Result<Guid>.Failure($"PhoneNumber {request.Model.RegisterUserRequest.PhoneNumber} already exists.");
 
             string fullName = BuildFullName(request.Model.RegisterUserRequest.FirstName, request.Model.RegisterUserRequest.LastName);
@@ -129,7 +123,7 @@ namespace Application.Features.Responders.Commands.RegisterResponder
             if (_currentUserService.Role == UserRole.AgencyAdmin || _currentUserService.Role == UserRole.SuperAdmin)
                 responder.Verify();
 
-            user.SetResponderId(responder.Id);
+            user.AssignAsResponder(responder.Id);
             responder.SetCreatedBy(currentUserId.ToString());
 
             await _userRepository.AddAsync(user);

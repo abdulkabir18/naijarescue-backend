@@ -53,25 +53,15 @@ namespace Application.Features.Agencies.Commands.RegisterAgency
             if (currentUserId == Guid.Empty)
                 return Result<Guid>.Failure("User is not authenticated.");
 
-            Task<bool> isEmailExist = _userRepository.IsEmailExistAsync(request.Model.RegisterUserRequest.Email);
-            Task<bool> isPhoneNumberExist = _userRepository.IsPhoneNumberExistAsync(request.Model.RegisterUserRequest.PhoneNumber);
-            Task<bool> isAgencyNameExist = _agencyRepository.IsNameExistAsync(request.Model.AgencyName);
-            Task<bool> isAgencyEmailExist = _agencyRepository.IsEmailExistAsync(request.Model.AgencyEmail);
-            Task<bool> isAgencyPhoneNumberExist = _agencyRepository.IsPhoneNumberExistAsync(request.Model.AgencyPhoneNumber);
-
-            await Task.WhenAll(isEmailExist, isPhoneNumberExist, isAgencyNameExist, isAgencyEmailExist, isAgencyPhoneNumberExist);
-
-
-
-            if (await isEmailExist)
+            if (await _userRepository.IsEmailExistAsync(request.Model.RegisterUserRequest.Email))
                 return Result<Guid>.Failure($"Email {request.Model.RegisterUserRequest.Email} is associated with another account.");
-            if (await isPhoneNumberExist)
+            if (await _userRepository.IsPhoneNumberExistAsync(request.Model.RegisterUserRequest.PhoneNumber))
                 return Result<Guid>.Failure($"PhoneNumber {request.Model.RegisterUserRequest.PhoneNumber} is associated with another account.");
-            if (await isAgencyNameExist)
+            if (await _agencyRepository.IsNameExistAsync(request.Model.AgencyName))
                 return Result<Guid>.Failure($"Agency Name {request.Model.AgencyName} is associated with another account.");
-            if (await isAgencyEmailExist)
+            if (await _agencyRepository.IsEmailExistAsync(request.Model.AgencyEmail))
                 return Result<Guid>.Failure($"Agency Email {request.Model.AgencyEmail} is associated with another account.");
-            if (await isAgencyPhoneNumberExist)
+            if (await _agencyRepository.IsPhoneNumberExistAsync(request.Model.AgencyPhoneNumber))
                 return Result<Guid>.Failure($"Agency PhoneNumber {request.Model.AgencyPhoneNumber} is associated with another account.");
 
             string fullName = BuildFullName(request.Model.RegisterUserRequest.FirstName, request.Model.RegisterUserRequest.LastName);
@@ -138,7 +128,7 @@ namespace Application.Features.Agencies.Commands.RegisterAgency
             if (_currentUserService.Role == UserRole.AgencyAdmin)
                 agency.Reactivate();
 
-            user.SetAgencyId(agency.Id);
+            user.AssignToAgency(agency.Id);
             agency.SetCreatedBy(currentUserId.ToString());
 
             await _userRepository.AddAsync(user);

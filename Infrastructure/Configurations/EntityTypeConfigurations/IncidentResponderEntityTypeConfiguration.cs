@@ -17,7 +17,7 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
                      builder.Property(ir => ir.UpdatedAt);
                      builder.Property(ir => ir.DeletedAt);
                      builder.Property(ir => ir.IsDeleted).IsRequired();
-                     builder.Property(ir => ir.Role).HasConversion<string>().IsRequired();
+                     builder.Property(ir => ir.Role).HasConversion<int>().IsRequired();
                      builder.Property(ir => ir.IsActive).IsRequired();
 
                      builder.HasOne(ir => ir.Incident)

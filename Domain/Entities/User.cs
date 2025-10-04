@@ -107,6 +107,11 @@ namespace Domain.Entities
             UserName = userName;
         }
 
+        public void SetAddress(Address address)
+        {
+            Address = address ?? throw new ArgumentNullException(nameof(address));
+        }
+
         public void SetProfilePicture(string imageUrl)
         {
             if (string.IsNullOrWhiteSpace(imageUrl))
@@ -114,6 +119,12 @@ namespace Domain.Entities
 
             ProfilePictureUrl = imageUrl;
         }
+
+        public void AssignToAgency(Guid agencyId) =>
+            AgencyId = agencyId;
+
+        public void AssignAsResponder(Guid responderId) =>
+            ResponderId = responderId;
 
         public void ChangeEmail(Email newEmail)
         {

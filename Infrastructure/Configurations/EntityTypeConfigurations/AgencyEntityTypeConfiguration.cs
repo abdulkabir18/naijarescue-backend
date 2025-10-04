@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -24,15 +25,33 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
             // builder.HasIndex(a => a.PhoneNumber).IsUnique();
             // builder.HasIndex(a => a.Name).IsUnique();
 
-            builder.OwnsOne(a => a.Email, email =>
-            {
-                email.Property(e => e.Value).HasColumnName("Email").IsRequired().HasMaxLength(255);
-            });
+            // builder.OwnsOne(a => a.Email, email =>
+            // {
+            //     email.Property(e => e.Value).HasColumnName("Email").IsRequired().HasMaxLength(255);
+            // });
 
-            builder.OwnsOne(a => a.PhoneNumber, phone =>
-            {
-                phone.Property(p => p.Value).HasColumnName("PhoneNumber").IsRequired().HasMaxLength(18);
-            });
+            // builder.OwnsOne(a => a.PhoneNumber, phone =>
+            // {
+            //     phone.Property(p => p.Value).HasColumnName("PhoneNumber").IsRequired().HasMaxLength(18);
+            // });
+
+            builder.Property(u => u.Email)
+                .HasColumnName("Email")
+                .IsRequired()
+                .HasMaxLength(200)
+                .HasConversion(
+                    v => v.Value,
+                    v => new Email(v)
+                );
+
+            builder.Property(u => u.PhoneNumber)
+                .HasColumnName("PhoneNumber")
+                .IsRequired()
+                .HasMaxLength(18)
+                .HasConversion(
+                    v => v.Value,
+                    v => new PhoneNumber(v)
+                );
 
             builder.OwnsOne(a => a.Address, address =>
             {

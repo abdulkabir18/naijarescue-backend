@@ -67,6 +67,7 @@ namespace Host.Extensions
                         Array.Empty<string>()
                     }
                 });
+                options.EnableAnnotations();
             });
 
             return services;

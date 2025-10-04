@@ -42,15 +42,10 @@ namespace Application.Features.Users.Commands.RegisterUser
             if (request.Model == null)
                 return Result<Guid>.Failure("Invalid request payload.");
 
-            Task<bool> isEmailExist = _userRepository.IsEmailExistAsync(request.Model.Email);
-            Task<bool> isPhoneNumberExist = _userRepository.IsPhoneNumberExistAsync(request.Model.PhoneNumber);
-
-            await Task.WhenAll(isEmailExist, isPhoneNumberExist);
-
-            if (await isEmailExist)
+            if (await _userRepository.IsEmailExistAsync(request.Model.Email))
                 return Result<Guid>.Failure($"Email {request.Model.Email} is associated with another account.");
 
-            if (await isPhoneNumberExist)
+            if (await _userRepository.IsPhoneNumberExistAsync(request.Model.PhoneNumber))
                 return Result<Guid>.Failure($"PhoneNumber {request.Model.PhoneNumber} is associated with another account.");
 
             string fullName = BuildFullName(request.Model.FirstName, request.Model.LastName);

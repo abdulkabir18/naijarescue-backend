@@ -1,5 +1,6 @@
 using Application.Extensions;
 using Host.Extensions;
+using Host.Hubs;
 using Infrastructure.Extensions;
 using Infrastructure.Middlewares;
 using Infrastructure.Settings;
@@ -7,6 +8,7 @@ using Infrastructure.Settings;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 builder.Services.AddCorsPolicy();
 builder.Services.AddApiVersioningWithExplorer();
 builder.Services.AddSwaggerWithJwt();
@@ -47,6 +49,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 app.UseCors("AllowFrontend");
 

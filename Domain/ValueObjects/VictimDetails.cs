@@ -14,7 +14,7 @@ namespace Domain.ValueObjects
         public VictimDetails(string? name, PhoneNumber? phoneNumber, Email? email, string description)
         {
             if (string.IsNullOrWhiteSpace(description))
-                throw new DomainException("Description is required if victim identity is incomplete.");
+                throw new ValidationException("Description is required if victim identity is incomplete.");
 
             Name = name;
             PhoneNumber = phoneNumber;
