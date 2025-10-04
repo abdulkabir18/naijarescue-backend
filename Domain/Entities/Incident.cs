@@ -119,6 +119,8 @@ namespace Domain.Entities
                 throw new ArgumentException("Invalid media type.", nameof(mediaType));
 
             IncidentMedias.Add(new IncidentMedia(Id, fileUrl, mediaType));
+
+            AddDomainEvent(new IncidentMediaAddedEvent(Id, fileUrl, mediaType));
         }
 
         public IncidentLiveStream StartLiveStream(string streamKey)

@@ -103,6 +103,16 @@ namespace Infrastructure.Extensions
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IAgencyRepository, AgencyRepository>();
             services.AddScoped<IResponderRepository, ResponderRepository>();
+            services.AddScoped<IIncidentRepository, IncidentRepository>();
+            services.AddScoped<IIncidentResponderRepository, IncidentResponderRepository>();
+            services.AddScoped<IIncidentLiveStreamRepository, IncidentLiveStreamRepository>();
+            services.AddScoped<IIncidentMediaRepository, IncidentMediaRepository>();
+            services.AddScoped<IIncidentLocationUpdateRepository, IncidentLocationUpdateRepository>();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
+            services.AddScoped<IChatRepository, ChatRepository>();
+            services.AddScoped<IChatParticipantRepository, ChatParticipantRepository>();
+            services.AddScoped<IMessageRepository, MessageRepository>();
+            // services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 
             return services;
         }

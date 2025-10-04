@@ -1,5 +1,7 @@
 using Domain.Common;
+using Domain.Common.Exceptions;
 using Domain.Enums;
+using Domain.Events;
 
 namespace Domain.Entities
 {
@@ -20,24 +22,50 @@ namespace Domain.Entities
             ChatType = chatType;
             IncidentId = incidentId;
             IsActive = true;
+
+            AddDomainEvent(new ChatCreatedEvent(Id, chatType, incidentId));
         }
 
         public void AddParticipant(Guid userId, string role)
         {
-            if (!IsActive) throw new InvalidOperationException("Cannot add participants to a closed chat.");
+            if (!IsActive)
+                throw new BusinessRuleException("Cannot add participants to a closed chat.");
 
-            if (!Participants.Any(p => p.UserId == userId))
-                Participants.Add(new ChatParticipant(userId, role));
+            if (Participants.Any(p => p.UserId == userId))
+                throw new BusinessRuleException("User is already a participant in this chat.");
+
+            var participant = new ChatParticipant(userId, role);
+            Participants.Add(participant);
+
+            AddDomainEvent(new ChatParticipantAddedEvent(Id, userId, role));
         }
 
         public void AddMessage(Message message)
         {
-            if (!IsActive) throw new InvalidOperationException("Cannot send messages to a closed chat.");
+            if (!IsActive)
+                throw new BusinessRuleException("Cannot send messages to a closed chat.");
 
             Messages.Add(message);
+
+            AddDomainEvent(new MessageAddedToChatEvent(Id, message.Id, message.SenderId, message.Content));
         }
 
-        public void CloseChat() => IsActive = false;
-        public void ReopenChat() => IsActive = true;
+        public void CloseChat()
+        {
+            if (!IsActive)
+                throw new BusinessRuleException("Chat is already closed.");
+
+            IsActive = false;
+            AddDomainEvent(new ChatClosedEvent(Id));
+        }
+
+        public void ReopenChat()
+        {
+            if (IsActive)
+                throw new BusinessRuleException("Chat is already active.");
+
+            IsActive = true;
+            AddDomainEvent(new ChatReopenedEvent(Id));
+        }
     }
 }
