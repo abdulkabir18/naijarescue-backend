@@ -35,10 +35,6 @@ namespace Application.Auth
 
         private static string GenerateRandomCode(int length = 6)
         {
-            //var random = new Random();
-            //return string.Concat(Enumerable.Range(0, length)
-            //    .Select(_ => random.Next(0, 10).ToString())); 
-
             var bytes = new byte[length];
             using var rng = RandomNumberGenerator.Create();
             rng.GetBytes(bytes);

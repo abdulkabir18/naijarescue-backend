@@ -25,21 +25,12 @@ namespace Infrastructure.Services
 
         public Task<string> GenerateCodeAsync(Guid userId, int expiryMinutes = 15)
         {
-            //// Enforce cooldown before allowing another code
-            //if (_lastRequest.TryGetValue(userId, out var last) && DateTime.UtcNow < last.Add(_cooldown))
-            //    throw new InvalidOperationException("You must wait before requesting a new code.");
-
-            //var code = VerificationCode.Create(userId, expiryMinutes);
-
-            //// Store or replace
-            //_codes[userId] = code;
-            //_lastRequest[userId] = DateTime.UtcNow;
-
-            //return Task.FromResult(code.Code);
-
             if (_lastRequest.TryGetValue(userId, out var last) &&
                 DateTime.UtcNow < last.Add(_cooldown))
-                throw new InvalidOperationException("You must wait before requesting a new code.");
+            {
+                var remaining = (last.Add(_cooldown) - DateTime.UtcNow).TotalMinutes;
+                throw new InvalidOperationException($"You must wait {Math.Ceiling(remaining)} more minute(s) before requesting a new code.");
+            }
 
             var code = VerificationCode.Create(userId, expiryMinutes);
 

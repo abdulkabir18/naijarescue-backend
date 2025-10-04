@@ -3,7 +3,7 @@ using Domain.Enums;
 
 namespace Domain.Events
 {
-    public sealed class UserRegisteredEvent : DomainEvent
+    public class UserRegisteredEvent : DomainEvent
     {
         public Guid UserId { get; }
         public string FullName { get; }

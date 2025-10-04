@@ -1,4 +1,5 @@
 ﻿using Domain.Common;
+using Domain.Common.Exceptions;
 using Domain.Enums;
 using Domain.Events;
 using Domain.ValueObjects;
@@ -43,7 +44,7 @@ namespace Domain.Entities
             Victim = victim;
             ReferenceCode = GenerateReferenceCode();
 
-            AddDomainEvent(new IncidentCreatedEvent(Id, UserId, type));
+            AddDomainEvent(new IncidentCreatedEvent(Id, UserId, type, Location, Address));
         }
 
         private static string GenerateReferenceCode()
@@ -56,15 +57,17 @@ namespace Domain.Entities
         public void AssignResponder(Guid responderId, ResponderRole role)
         {
             if (Status is IncidentStatus.Resolved or IncidentStatus.Cancelled)
-                throw new InvalidOperationException("Cannot assign responder to a resolved or cancelled incident.");
+                throw new BusinessRuleException("Cannot assign responder to a resolved or cancelled incident.");
 
             if (AssignedResponders.Any(r => r.ResponderId == responderId && r.IsActive))
-                throw new InvalidOperationException("This responder is already assigned to the incident.");
+                throw new BusinessRuleException("This responder is already assigned to the incident.");
 
             AssignedResponders.Add(new IncidentResponder(Id, responderId, role));
 
             if (Status == IncidentStatus.Pending)
                 Status = IncidentStatus.Reported;
+
+            AddDomainEvent(new ResponderAssignedToIncidentEvent(Id, responderId, role));
         }
 
         public void UpdateAddress(Address address) => Address = address;
@@ -76,28 +79,35 @@ namespace Domain.Entities
 
             LocationUpdates.Add(new IncidentLocationUpdate(Id, newLocation));
             Location = newLocation;
-        }
 
+            AddDomainEvent(new IncidentLocationUpdatedEvent(Id, newLocation));
+        }
 
         public void MarkInProgress()
         {
             if (Status != IncidentStatus.Reported)
                 throw new InvalidOperationException("Incident must be reported before it can be marked in progress.");
+
             Status = IncidentStatus.InProgress;
+            AddDomainEvent(new IncidentStatusChangedEvent(Id, Status));
         }
 
         public void MarkResolved()
         {
             if (Status != IncidentStatus.InProgress)
                 throw new InvalidOperationException("Incident must be in progress before it can be resolved.");
+
             Status = IncidentStatus.Resolved;
+            AddDomainEvent(new IncidentStatusChangedEvent(Id, Status));
         }
 
         public void Cancel()
         {
             if (Status == IncidentStatus.Resolved)
                 throw new InvalidOperationException("Cannot cancel a resolved incident.");
+
             Status = IncidentStatus.Cancelled;
+            AddDomainEvent(new IncidentStatusChangedEvent(Id, Status));
         }
 
         public void AddMedia(string fileUrl, MediaType mediaType)
@@ -125,6 +135,8 @@ namespace Domain.Entities
             var liveStream = new IncidentLiveStream(Id, streamKey);
             LiveStreams.Add(liveStream);
 
+            AddDomainEvent(new IncidentLiveStreamStartedEvent(Id, liveStream.Id));
+
             return liveStream;
         }
 
@@ -135,6 +147,8 @@ namespace Domain.Entities
                 throw new InvalidOperationException("Live stream not found for this incident.");
 
             liveStream.EndStream();
+
+            AddDomainEvent(new IncidentLiveStreamEndedEvent(Id, liveStreamId));
         }
 
         public void SetReporterDetails(string name, string phoneNumber, string email)

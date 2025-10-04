@@ -1,14 +1,12 @@
 using Application.Extensions;
 using Host.Extensions;
 using Infrastructure.Extensions;
+using Infrastructure.Middlewares;
 using Infrastructure.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddCorsPolicy();
 builder.Services.AddApiVersioningWithExplorer();
 builder.Services.AddSwaggerWithJwt();
@@ -38,11 +36,13 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 app.UseHttpsRedirection();
 
 app.UseRouting();
 
-app.UseAuthorization();
+app.UseAuthentication();
 
 app.UseAuthorization();
 

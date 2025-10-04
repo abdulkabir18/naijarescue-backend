@@ -43,7 +43,10 @@ namespace Domain.Entities
 
         public User(string fullName, Email email, PhoneNumber phoneNumber, Gender gender, UserRole role = UserRole.Victim)
         {
-            FullName = string.IsNullOrWhiteSpace(fullName) ? throw new DomainException("Full name is required.") : fullName;
+            if (string.IsNullOrWhiteSpace(fullName))
+                throw new ValidationException("Full name is required.");
+
+            FullName = fullName;
             Email = email ?? throw new ArgumentNullException(nameof(email));
             PhoneNumber = phoneNumber ?? throw new ArgumentNullException(nameof(phoneNumber));
             Gender = gender;
@@ -60,7 +63,7 @@ namespace Domain.Entities
         public static User RegisterWithGoogle(string fullName, Email email, string googleId, string? profilePictureUrl, Gender gender, UserRole role = UserRole.Victim)
         {
             if (string.IsNullOrWhiteSpace(googleId))
-                throw new DomainException("Google ID is required for Google Sign-In.");
+                throw new ValidationException("Google ID is required for Google Sign-In.");
 
             var user = new User
             {
@@ -80,11 +83,10 @@ namespace Domain.Entities
             return user;
         }
 
-
         public void SetPassword(string rawPassword, IPasswordHasher hasher)
         {
             if (string.IsNullOrWhiteSpace(rawPassword))
-                throw new DomainException("Password cannot be empty.");
+                throw new ValidationException("Password cannot be empty.");
 
             PasswordHash = hasher.HashPassword(rawPassword);
         }
@@ -92,7 +94,7 @@ namespace Domain.Entities
         public bool VerifyPassword(string password, IPasswordHasher hasher)
         {
             if (string.IsNullOrWhiteSpace(password))
-                throw new DomainException("Password cannot be empty.");
+                throw new ValidationException("Password cannot be empty.");
 
             return hasher.VerifyPassword(PasswordHash!, password);
         }
@@ -100,7 +102,7 @@ namespace Domain.Entities
         public void SetUserName(string userName)
         {
             if (string.IsNullOrWhiteSpace(userName))
-                throw new DomainException("Username cannot be empty.");
+                throw new ValidationException("Username cannot be empty.");
 
             UserName = userName;
         }
@@ -108,33 +110,26 @@ namespace Domain.Entities
         public void SetProfilePicture(string imageUrl)
         {
             if (string.IsNullOrWhiteSpace(imageUrl))
-                throw new DomainException("Profile picture URL cannot be empty.");
+                throw new ValidationException("Profile picture URL cannot be empty.");
 
             ProfilePictureUrl = imageUrl;
         }
 
-        public void SetAddress(Address newAddress) =>
-            Address = newAddress ?? throw new ArgumentNullException(nameof(newAddress));
-
-        public void SetAgencyId(Guid agencyId) =>
-            AgencyId = agencyId;
-
-        public void SetResponderId(Guid responderId) =>
-            ResponderId = responderId;
-
         public void ChangeEmail(Email newEmail)
         {
             if (Email == newEmail)
-                throw new ValidationException("New email cannot be the same as the old one.");
+                throw new BusinessRuleException("New email cannot be the same as the old one.");
 
             Email = newEmail ?? throw new ArgumentNullException(nameof(newEmail));
             IsEmailVerified = false;
+
+            AddDomainEvent(new UserEmailChangedEvent(Id, newEmail.Value));
         }
 
         public void ChangePhoneNumber(PhoneNumber newPhone)
         {
             if (PhoneNumber == newPhone)
-                throw new ValidationException("New phonenumber cannot be the same as the old one.");
+                throw new BusinessRuleException("New phone number cannot be the same as the old one.");
 
             PhoneNumber = newPhone ?? throw new ArgumentNullException(nameof(newPhone));
             IsPhoneNumberVerified = false;
@@ -148,10 +143,11 @@ namespace Domain.Entities
                 (c.PhoneNumber != null && c.PhoneNumber == contact.PhoneNumber) ||
                 (c.Email != null && c.Email == contact.Email)))
             {
-                throw new DomainException("An emergency contact with this phone or email already exists.");
+                throw new BusinessRuleException("An emergency contact with this phone or email already exists.");
             }
 
             EmergencyContacts.Add(contact);
+            AddDomainEvent(new EmergencyContactAddedEvent(Id, contact.Name, contact.Email.Value, contact.GetRelationshipLabel()));
         }
 
         public void RemoveEmergencyContact(PhoneNumber? phoneNumber, Email? email)
@@ -161,7 +157,7 @@ namespace Domain.Entities
                 (email != null && c.Email == email));
 
             if (contact == null)
-                throw new DomainException("Emergency contact not found.");
+                throw new NotFoundException(nameof(EmergencyContact), phoneNumber?.Value != null ? Guid.Empty : Guid.Empty); // you can adjust key later
 
             EmergencyContacts.Remove(contact);
         }
@@ -169,32 +165,30 @@ namespace Domain.Entities
         public void UpdateEmergencyContact(PhoneNumber? phoneNumber, Email? email, string? newName = null, RelationshipType? newRelationship = null, string? newOther = null)
         {
             var contact = EmergencyContacts.FirstOrDefault(c =>
-                (phoneNumber != null && c.PhoneNumber == phoneNumber) ||
-                (email != null && c.Email == email));
+                (email != null && c.Email == email) ||
+                (phoneNumber != null && c.PhoneNumber == phoneNumber));
 
             if (contact == null)
-                throw new DomainException("Emergency contact not found.");
+                throw new NotFoundException(nameof(EmergencyContact), Guid.Empty); // adjust key logic
 
             var updated = new EmergencyContact(
                 newName ?? contact.Name,
-                contact.PhoneNumber!,
-                contact.Email!,
+                phoneNumber ?? contact.PhoneNumber!,
+                email ?? contact.Email!,
                 newRelationship ?? contact.Relationship,
                 newOther ?? contact.OtherRelationship
             );
 
-            if (EmergencyContacts.Any(c =>
-                c != contact &&
+            if (EmergencyContacts.Any(c => c != contact &&
                 ((c.PhoneNumber != null && c.PhoneNumber == updated.PhoneNumber) ||
                  (c.Email != null && c.Email == updated.Email))))
             {
-                throw new DomainException("Another emergency contact with this phone or email already exists.");
+                throw new BusinessRuleException("Another emergency contact with this phone or email already exists.");
             }
 
             EmergencyContacts.Remove(contact);
             EmergencyContacts.Add(updated);
         }
-
 
         public void VerifyEmail() => IsEmailVerified = true;
         public void VerifyPhoneNumber() => IsPhoneNumberVerified = true;
@@ -202,7 +196,8 @@ namespace Domain.Entities
         public void EnableTwoFactorAuth(string secretKey)
         {
             if (string.IsNullOrWhiteSpace(secretKey))
-                throw new DomainException("Secret key cannot be empty.");
+                throw new ValidationException("Secret key cannot be empty.");
+
             TwoFactorEnabled = true;
             GoogleAuthenticatorSecretKey = secretKey;
         }

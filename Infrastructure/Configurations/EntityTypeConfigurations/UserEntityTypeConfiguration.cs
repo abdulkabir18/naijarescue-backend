@@ -58,6 +58,8 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
                 ec.ToTable("UserEmergencyContacts");
                 ec.WithOwner().HasForeignKey("UserId");
                 ec.Property(e => e.Name).IsRequired().HasMaxLength(100);
+                ec.Property(e => e.IsEmailVerified).IsRequired();
+                ec.Property(e => e.IsPhoneNumberVerified).IsRequired();
 
                 ec.OwnsOne(e => e.PhoneNumber, pn =>
                 {
@@ -66,7 +68,7 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
 
                 ec.OwnsOne(e => e.Email, email =>
                 {
-                    email.Property(e => e.Value).HasColumnName("EmergencyEmail").HasMaxLength(200);
+                    email.Property(e => e.Value).HasColumnName("EmergencyEmail").HasMaxLength(200).IsRequired();
                 });
 
                 ec.Property(e => e.Relationship).IsRequired();
@@ -97,6 +99,7 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
                 .WithOne(i => i.User)
                 .HasForeignKey(i => i.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
+
             builder.HasMany(u => u.LiveStreamParticipations)
             .WithOne(l => l.User)
             .HasForeignKey(u => u.UserId)

@@ -1,19 +1,24 @@
 ﻿using Domain.Common;
 using Domain.Enums;
+using Domain.ValueObjects;
 
 namespace Domain.Events
 {
     public class IncidentCreatedEvent : DomainEvent
     {
         public Guid IncidentId { get; }
-        public Guid? CreatedByUserId { get; }
-        public IncidentType IncidentType { get; }
+        public Guid? UserId { get; }
+        public IncidentType Type { get; }
+        public GeoLocation Location { get; }
+        public Address? Address { get; }
 
-        public IncidentCreatedEvent(Guid incidentId, Guid? createdByUserId, IncidentType incidentType)
+        public IncidentCreatedEvent(Guid incidentId, Guid? userId, IncidentType type, GeoLocation location, Address? address)
         {
             IncidentId = incidentId;
-            CreatedByUserId = createdByUserId;
-            IncidentType = incidentType;
+            UserId = userId;
+            Type = type;
+            Location = location;
+            Address = address;
         }
     }
 }
