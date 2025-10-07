@@ -34,7 +34,7 @@ namespace Domain.Entities
             if (Participants.Any(p => p.UserId == userId))
                 throw new BusinessRuleException("User is already a participant in this chat.");
 
-            var participant = new ChatParticipant(userId, role);
+            var participant = new ChatParticipant(Id, userId, role);
             Participants.Add(participant);
 
             AddDomainEvent(new ChatParticipantAddedEvent(Id, userId, role));

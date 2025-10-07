@@ -1,12 +1,9 @@
 ﻿using Application.Common.Interfaces.Repositories;
 using Application.Interfaces.Auth;
-using Application.Interfaces.CurrentUser;
 using Application.Interfaces.External;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.UnitOfWork;
 using brevo_csharp.Api;
-using brevo_csharp.Client;
-using brevo_csharp.Model;
 using Domain.Common.Security;
 using Infrastructure.Persistence.Context;
 using Infrastructure.Persistence.Repositories;
@@ -15,11 +12,9 @@ using Infrastructure.Persistence.UnitOfWork;
 using Infrastructure.Security;
 using Infrastructure.Services;
 using Infrastructure.Services.Auth;
-using Infrastructure.Services.CurrentUser;
 using Infrastructure.Services.Email;
 using Infrastructure.Services.Storage;
 using Infrastructure.Services.Storage.Manager;
-using Infrastructure.Settings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,7 +26,6 @@ namespace Infrastructure.Extensions
         public static IServiceCollection AddInfrastructure(this IServiceCollection services)
         {
             services.AddSingleton<IVerificationService, VerificationService>();
-            services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<IAuthService, JwtService>();
 
             return services;
@@ -57,11 +51,10 @@ namespace Infrastructure.Extensions
             return services;
         }
 
-        public static async System.Threading.Tasks.Task SeedDatabaseAsync(this IServiceProvider services)
+        public static async Task SeedDatabaseAsync(this IServiceProvider services)
         {
-            using var scope = services.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<ProjectDbContext>();
-            var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+            var context = services.GetRequiredService<ProjectDbContext>();
+            var passwordHasher = services.GetRequiredService<IPasswordHasher>();
 
             await DbInitializer.SeedAsync(context, passwordHasher);
         }
@@ -112,7 +105,7 @@ namespace Infrastructure.Extensions
             services.AddScoped<IChatRepository, ChatRepository>();
             services.AddScoped<IChatParticipantRepository, ChatParticipantRepository>();
             services.AddScoped<IMessageRepository, MessageRepository>();
-            // services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+            services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 
             return services;
         }

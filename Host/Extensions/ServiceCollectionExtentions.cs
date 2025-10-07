@@ -1,4 +1,6 @@
-﻿using Infrastructure.Settings;
+﻿using Application.Interfaces.CurrentUser;
+using Infrastructure.Services.CurrentUser;
+using Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -99,6 +101,7 @@ namespace Host.Extensions
             });
 
             services.AddHttpContextAccessor();
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
 
             return services;
         }

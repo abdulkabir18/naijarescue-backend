@@ -12,7 +12,7 @@ namespace Domain.Entities
 
         private IncidentMedia() { }
 
-        public IncidentMedia(Guid incidentId, string fileUrl, MediaType mediaType)
+        public IncidentMedia(Guid incidentId, string fileUrl, MediaType mediaType, string? createdBy)
         {
             if (string.IsNullOrWhiteSpace(fileUrl))
                 throw new ArgumentException("File URL cannot be empty.", nameof(fileUrl));
@@ -20,6 +20,9 @@ namespace Domain.Entities
             IncidentId = incidentId;
             FileUrl = fileUrl;
             MediaType = mediaType;
+
+            if (createdBy != null)
+                SetCreatedBy(createdBy);
         }
     }
 }

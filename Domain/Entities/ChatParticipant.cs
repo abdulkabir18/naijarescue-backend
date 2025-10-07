@@ -13,8 +13,9 @@ namespace Domain.Entities
 
         private ChatParticipant() { }
 
-        public ChatParticipant(Guid userId, string role)
+        public ChatParticipant(Guid chatId, Guid userId, string role)
         {
+            ChatId = chatId;
             UserId = userId;
             Role = role;
         }

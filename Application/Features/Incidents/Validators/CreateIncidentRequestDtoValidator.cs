@@ -4,43 +4,46 @@ using FluentValidation;
 
 namespace Application.Features.Incidents.Validators
 {
-    public class CreateIncidentRequestDtoValidator : AbstractValidator<CreateIncidentRequestModel>
+    public class CreateIncidentRequestModelValidator : AbstractValidator<CreateIncidentRequestModel>
     {
-        public CreateIncidentRequestDtoValidator()
+        public CreateIncidentRequestModelValidator()
         {
             RuleFor(x => x.Type)
-                .IsInEnum()
-                .WithMessage("Invalid incident type.");
+                .IsInEnum().WithMessage("Incident type is required.");
 
             RuleFor(x => x.Location)
                 .NotNull().WithMessage("Location is required.")
                 .SetValidator(new GeoLocationDtoValidator());
 
             RuleFor(x => x.OccurredAt)
-                .NotEmpty().WithMessage("OccurredAt is required.")
                 .LessThanOrEqualTo(DateTime.UtcNow)
-                .WithMessage("Occurred date cannot be in the future.");
+                .GreaterThanOrEqualTo(DateTime.UtcNow.AddMinutes(-15)).WithMessage("OccurredAt must be within the last 15 minutes and cannot be a future time.");
 
-            When(x => x.IsAnonymous, () =>
+            RuleFor(x => x.Address)
+                .SetValidator(new AddressDtoValidator()!)
+                .When(x => x.Address != null);
+
+            When(x => x.IncidentMedias?.Files?.Any() == true, () =>
             {
-                RuleFor(x => x.ReporterName)
-                    .NotEmpty().WithMessage("Reporter name is required for anonymous reports.")
-                    .MaximumLength(100);
-
-                RuleFor(x => x.ReporterPhoneNumber)
-                    .NotEmpty().WithMessage("Reporter phone number is required for anonymous reports.")
-                    .Matches(@"^\+?[0-9]{8,18}$")
-                    .WithMessage("Invalid phone number format.");
-
-                RuleFor(x => x.ReporterEmail)
-                    .EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.ReporterEmail))
-                    .WithMessage("Invalid reporter email format.");
+                RuleFor(x => x.IncidentMedias).SetValidator(new IncidentMediaDtoValidator()!);
             });
 
-            When(x => x.IncidentMedias != null && x.IncidentMedias.Count > 0, () =>
+            When(x => x.IsReportingForAnotherPerson, () =>
             {
-                RuleForEach(x => x.IncidentMedias!)
-                    .SetValidator(new IncidentMediaDtoValidator());
+                RuleFor(x => x.ReporterDetails)
+                    .NotNull().WithMessage("Reporter details are required when reporting for another person.")
+                    .SetValidator(new ReporterDetailsDtoValidator()!);
+
+                RuleFor(x => x.VictimDetails)
+                    .NotNull().WithMessage("Victim details are required when reporting for another person.")
+                    .SetValidator(new VictimDetailsDtoValidator()!);
+            });
+
+            When(x => !x.IsAuthenticatedUser, () =>
+            {
+                RuleFor(x => x.VictimDetails)
+                    .NotNull().WithMessage("Victim details are required for anonymous reports.")
+                    .SetValidator(new VictimDetailsDtoValidator()!);
             });
         }
     }

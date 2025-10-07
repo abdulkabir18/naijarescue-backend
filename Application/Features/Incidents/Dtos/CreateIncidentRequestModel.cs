@@ -6,11 +6,12 @@ namespace Application.Features.Incidents.Dtos
     public record CreateIncidentRequestModel(
         IncidentType Type,
         GeoLocationDto Location,
+        AddressDto? Address,
         DateTime OccurredAt,
-        bool IsAnonymous,
-        string? ReporterName,
-        string? ReporterPhoneNumber,
-        string? ReporterEmail,
-        ICollection<IncidentMediaDto>? IncidentMedias
+        bool IsAuthenticatedUser,
+        bool IsReportingForAnotherPerson,
+        ReporterDetailsDto? ReporterDetails,
+        VictimDetailsDto? VictimDetails,
+        IncidentMediaDto? IncidentMedias
     );
 }

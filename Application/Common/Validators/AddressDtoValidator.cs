@@ -8,58 +8,55 @@ namespace Application.Common.Validators
     {
         public AddressDtoValidator()
         {
-            RuleFor(x => x)
-                .Must(AllOrNoneProvided)
-                .WithMessage("If any address field is provided, all address fields must be provided.");
+            When(HasAnyAddressField, () =>
+            {
+                RuleFor(x => x.Street)
+                    .NotEmpty().WithMessage("Street is required.")
+                    .Length(3, 100).WithMessage("Street must be between 3 and 100 characters.");
 
-            RuleFor(x => x.Street)
-                .MinimumLength(3).WithMessage("Street must be at least 3 characters.")
-                .MaximumLength(100).WithMessage("Street cannot exceed 100 characters.");
+                RuleFor(x => x.State)
+                    .NotEmpty().WithMessage("State is required.")
+                    .Must(state => NigeriaData.States.Contains(state!, StringComparer.OrdinalIgnoreCase))
+                    .WithMessage("Invalid state. Must be one of Nigeria's 36 states or FCT.");
 
-            RuleFor(x => x.State)
-                .NotEmpty().When(x => !string.IsNullOrEmpty(x.City))
-                .WithMessage("State is required.")
-                .Must(s => NigeriaData.States.Contains(s, StringComparer.OrdinalIgnoreCase))
-                .WithMessage("Invalid state. Must be one of Nigeria's 36 states or FCT.");
+                RuleFor(x => x.City)
+                    .NotEmpty().WithMessage("City is required.")
+                    .Must((address, city) =>
+                        !string.IsNullOrWhiteSpace(address.State) &&
+                        NigeriaData.Cities.TryGetValue(address.State, out var cities) &&
+                        cities.Any(c => c.Equals(city, StringComparison.OrdinalIgnoreCase)))
+                    .WithMessage((address, city) => $"City '{city}' is not valid for state '{address.State}'.")
+                    .When(x => !string.IsNullOrWhiteSpace(x.State));
 
-            RuleFor(x => x.City)
-                .NotEmpty().When(x => !string.IsNullOrEmpty(x.Street))
-                .WithMessage("City is required.")
-                .DependentRules(() =>
-                {
-                    RuleFor(x => x.City)
-                        .Must((dto, city) =>
-                            NigeriaData.Cities.TryGetValue(dto.State, out var cities) &&
-                            cities.Any(c => c.Equals(city, StringComparison.OrdinalIgnoreCase)))
-                        .WithMessage(ci => $"City '{ci.City}' is not valid for state '{ci.State}'.");
-                });
+                RuleFor(x => x.LGA)
+                    .NotEmpty().WithMessage("LGA is required.")
+                    .Must((address, lga) =>
+                        !string.IsNullOrWhiteSpace(address.State) &&
+                        NigeriaData.LGAs.TryGetValue(address.State, out var lgas) &&
+                        lgas.Any(l => l.Equals(lga, StringComparison.OrdinalIgnoreCase)))
+                    .WithMessage((address, lga) => $"LGA '{lga}' is not valid for state '{address.State}'.")
+                    .When(x => !string.IsNullOrWhiteSpace(x.State));
 
-            RuleFor(x => x.PostalCode)
-                .Matches(@"^\d{6}$").When(x => !string.IsNullOrEmpty(x.PostalCode))
-                .WithMessage("Postal code must be 6 digits.");
+                RuleFor(x => x.PostalCode)
+                    .NotEmpty().WithMessage("Postal code is required.")
+                    .Matches(@"^\d{6}$").WithMessage("Postal code must be 6 digits.");
 
-            RuleFor(x => x.Country)
-                .NotEmpty().WithMessage("Country is required.")
-                .Must(c => string.Equals(c?.Trim(), "Nigeria", StringComparison.OrdinalIgnoreCase) ||
-                           string.Equals(c?.Trim(), "NG", StringComparison.OrdinalIgnoreCase))
-                .WithMessage("Country must be Nigeria (or NG).");
+                RuleFor(x => x.Country)
+                    .NotEmpty().WithMessage("Country is required.")
+                    .Must(country => string.Equals(country?.Trim(), "Nigeria", StringComparison.OrdinalIgnoreCase) ||
+                                     string.Equals(country?.Trim(), "NG", StringComparison.OrdinalIgnoreCase))
+                    .WithMessage("Country must be Nigeria (or NG).");
+            });
         }
 
-        private bool AllOrNoneProvided(AddressDto dto)
+        private static bool HasAnyAddressField(AddressDto dto)
         {
-            var fields = new[]
-            {
-                dto.Street,
-                dto.City,
-                dto.State,
-                dto.Country,
-                dto.PostalCode
-            };
-
-            bool anyProvided = fields.Any(f => !string.IsNullOrWhiteSpace(f));
-            bool allProvided = fields.All(f => !string.IsNullOrWhiteSpace(f));
-
-            return !anyProvided || allProvided;
+            return !string.IsNullOrWhiteSpace(dto.Street)
+                || !string.IsNullOrWhiteSpace(dto.City)
+                || !string.IsNullOrWhiteSpace(dto.State)
+                || !string.IsNullOrWhiteSpace(dto.LGA)
+                || !string.IsNullOrWhiteSpace(dto.Country)
+                || !string.IsNullOrWhiteSpace(dto.PostalCode);
         }
     }
 }

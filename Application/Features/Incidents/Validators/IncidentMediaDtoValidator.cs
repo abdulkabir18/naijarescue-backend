@@ -1,7 +1,5 @@
 using Application.Features.Incidents.Dtos;
-using Domain.Enums;
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
 
 namespace Application.Features.Incidents.Validators
 {
@@ -13,16 +11,20 @@ namespace Application.Features.Incidents.Validators
 
         public IncidentMediaDtoValidator()
         {
-            RuleFor(x => x.File)
-                .NotNull().WithMessage("File is required.")
-                .Must(f => f.Length > 0).WithMessage("File cannot be empty.")
-                .Must(BeAValidContentType).WithMessage("Invalid or unsupported file type.")
-                .Must(f => f.Length <= 10 * 1024 * 1024).WithMessage("File size must not exceed 10MB.");
+            When(x => x.Files != null && x.Files.Any(), () =>
+            {
+                RuleForEach(x => x.Files).ChildRules(file =>
+                {
+                    file.RuleFor(f => f.Length).GreaterThan(0).WithMessage("File cannot be empty.");
+                    file.RuleFor(f => f.Length).LessThanOrEqualTo(10 * 1024 * 1024).WithMessage("File size must not exceed 10MB.");
+                    file.RuleFor(f => f.ContentType).Must(BeAValidContentType).WithMessage("Invalid or unsupported file type.");
+                });
+            });
         }
 
-        private bool BeAValidContentType(IFormFile file)
+        private bool BeAValidContentType(string contentType)
         {
-            var contentType = file.ContentType.ToLowerInvariant();
+            contentType = contentType.ToLowerInvariant();
 
             return ImageTypes.Contains(contentType) ||
                    VideoTypes.Contains(contentType) ||

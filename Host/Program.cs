@@ -26,7 +26,11 @@ builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Brev
 
 var app = builder.Build();
 
-await app.Services.SeedDatabaseAsync();
+using (var scope = app.Services.CreateScope())
+{
+    var scopedProvider = scope.ServiceProvider;
+    await scopedProvider.SeedDatabaseAsync();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -39,6 +43,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+app.UseMiddleware<AuditMiddleware>();
 
 app.UseHttpsRedirection();
 

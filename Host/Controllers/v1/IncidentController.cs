@@ -22,22 +22,25 @@ namespace Host.Controllers.v1
         }
 
         [AllowAnonymous]
+        [HttpPost("report")]
         [HttpPost("panic-alert")]
         [SwaggerOperation(
             Summary = "Create a new incident",
-            Description = "Creates a new incident. Authenticated users can create non-anonymous incidents; anyone can create anonymous incidents."
+            Description = "Creates a new incident. Authenticated users will be linked to the report; guests can report on behalf of victims."
         )]
-        [ProducesResponseType(typeof(Result<CreateIncidentResponseDto>), StatusCodes.Status201Created)]
-        [ProducesResponseType(typeof(Result<CreateIncidentResponseDto>), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Result<CreateIncidentResponseDto>>> Create([FromForm] CreateIncidentCommand command)
+        [ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(Result<Guid>), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<Result<Guid>>> CreateIncident([FromForm] CreateIncidentCommand command)
         {
             var result = await _mediator.Send(command);
 
             if (!result.Succeeded)
                 return BadRequest(result);
 
-            return CreatedAtAction(nameof(GetById), new { id = result.Data?.Id }, result);
+            return CreatedAtAction(nameof(GetById), new { id = result.Data }, result);
         }
+
 
         [HttpGet("{id}")]
         [SwaggerOperation(

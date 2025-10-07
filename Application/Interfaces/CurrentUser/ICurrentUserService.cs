@@ -7,5 +7,7 @@ namespace Application.Interfaces.CurrentUser
         Guid UserId { get; }
         UserRole Role { get; }
         string Email { get; }
+        string? IpAddress { get; }
+        string? UserAgent { get; }
     }
 }

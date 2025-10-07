@@ -5,6 +5,7 @@ namespace Domain.Enums
         Created = 1,
         Updated,
         Deleted,
+        Accessed,
         SoftDeleted,
         Restored,
         Login,

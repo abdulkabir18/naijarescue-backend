@@ -20,7 +20,7 @@ namespace Infrastructure.Configurations.EntityTypeConfigurations
             builder.Property(i => i.Type).HasConversion<int>().IsRequired();
             builder.Property(i => i.Status).HasConversion<int>().IsRequired();
             builder.Property(i => i.OccurredAt).IsRequired();
-            builder.Property(i => i.IsAnonymous).IsRequired();
+            // builder.Property(i => i.IsAnonymous).IsRequired();
             builder.Property(i => i.ReferenceCode).IsRequired().HasMaxLength(50);
             builder.HasIndex(i => i.ReferenceCode).IsUnique();
 

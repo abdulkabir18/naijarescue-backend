@@ -14,7 +14,6 @@ namespace Domain.Entities
         public GeoLocation Location { get; private set; }
         public Address? Address { get; private set; }
         public DateTime OccurredAt { get; private set; }
-        public bool IsAnonymous { get; private set; }
 
         public Guid? UserId { get; private set; }
         public User? User { get; private set; }
@@ -32,16 +31,13 @@ namespace Domain.Entities
 
         private Incident() { }
 
-        public Incident(IncidentType type, GeoLocation location, DateTime occurredAt, bool isAnonymous, ReporterDetails? reporter, Guid? userId = null, VictimDetails? victim = null)
+        public Incident(IncidentType type, GeoLocation location, DateTime occurredAt, Guid? userId = null)
         {
             Type = type;
             Status = IncidentStatus.Pending;
             Location = location;
             OccurredAt = occurredAt;
-            IsAnonymous = isAnonymous;
             UserId = userId;
-            Reporter = reporter;
-            Victim = victim;
             ReferenceCode = GenerateReferenceCode();
 
             AddDomainEvent(new IncidentCreatedEvent(Id, UserId, type, Location, Address));
@@ -110,7 +106,7 @@ namespace Domain.Entities
             AddDomainEvent(new IncidentStatusChangedEvent(Id, Status));
         }
 
-        public void AddMedia(string fileUrl, MediaType mediaType)
+        public void AddMedia(string fileUrl, MediaType mediaType, string? createdBy)
         {
             if (string.IsNullOrWhiteSpace(fileUrl))
                 throw new ArgumentException("File URL cannot be null or empty.", nameof(fileUrl));
@@ -118,9 +114,17 @@ namespace Domain.Entities
             if (!Enum.IsDefined(typeof(MediaType), mediaType))
                 throw new ArgumentException("Invalid media type.", nameof(mediaType));
 
-            IncidentMedias.Add(new IncidentMedia(Id, fileUrl, mediaType));
+            IncidentMedias.Add(new IncidentMedia(Id, fileUrl, mediaType, createdBy));
 
             AddDomainEvent(new IncidentMediaAddedEvent(Id, fileUrl, mediaType));
+        }
+
+        public void LinkChat(Guid chatId)
+        {
+            if (ChatId.HasValue)
+                throw new BusinessRuleException("Incident already linked to a chat.");
+
+            ChatId = chatId;
         }
 
         public IncidentLiveStream StartLiveStream(string streamKey)
