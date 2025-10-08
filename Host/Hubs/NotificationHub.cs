@@ -28,6 +28,12 @@ namespace Host.Hubs
         {
             await Clients.Group(chatId.ToString()).SendAsync("ReceiveChatMessage", message);
         }
+
+        public async Task JoinResponderGroup()
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, "Responders");
+        }
+
         // public override async Task OnConnectedAsync()
         // {
         //     await base.OnConnectedAsync();

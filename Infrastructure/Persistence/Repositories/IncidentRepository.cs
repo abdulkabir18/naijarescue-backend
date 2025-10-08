@@ -1,6 +1,7 @@
 using Application.Interfaces.Repositories;
 using Domain.Entities;
 using Infrastructure.Persistence.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Repositories
 {
@@ -12,5 +13,33 @@ namespace Infrastructure.Persistence.Repositories
             _dbContext = dbContext;
         }
 
+        public async Task<bool> ExistsAsync(Guid id)
+        {
+            return await _dbContext.Incidents.AnyAsync(i => i.Id == id && !i.IsDeleted);
+        }
+
+        public async Task<Incident?> GetByIdWithDetailsAsync(Guid id)
+        {
+            return await _dbContext.Incidents
+                .Include(i => i.IncidentMedias)
+                .Include(i => i.User)
+                .FirstOrDefaultAsync(i => i.Id == id && !i.IsDeleted);
+        }
+
+        public async Task<IEnumerable<Incident>> GetNearbyIncidentsAsync(double latitude, double longitude, double radiusKm)
+        {
+            const double EarthRadiusKm = 6371.0;
+
+            return await _dbContext.Incidents
+                .Where(i => !i.IsDeleted &&
+                            (EarthRadiusKm * Math.Acos(
+                                Math.Cos(Math.PI * latitude / 180.0) *
+                                Math.Cos(Math.PI * i.Location.Latitude / 180.0) *
+                                Math.Cos(Math.PI * i.Location.Longitude / 180.0 - Math.PI * longitude / 180.0) +
+                                Math.Sin(Math.PI * latitude / 180.0) *
+                                Math.Sin(Math.PI * i.Location.Latitude / 180.0)
+                            )) <= radiusKm)
+                .ToListAsync();
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Application.Common.Interfaces.Repositories;
 using Domain.Entities;
+using Domain.ValueObjects;
 using System.Linq.Expressions;
 
 namespace Application.Interfaces.Repositories

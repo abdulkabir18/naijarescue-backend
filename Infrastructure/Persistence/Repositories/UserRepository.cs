@@ -21,6 +21,23 @@ namespace Infrastructure.Persistence.Repositories
             return _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(expression);
         }
 
+        public async Task<IEnumerable<string>> GetEmergencyContactEmailsAsync(Guid userId)
+        {
+            var user = await _dbContext.Users
+                .AsNoTracking()
+                .Include(u => u.EmergencyContacts)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null || user.EmergencyContacts == null)
+                return [];
+
+            return user.EmergencyContacts
+                .Where(c => c.Email != null)
+                .Select(c => c.Email.Value)
+                .Distinct()
+                .ToList();
+        }
+
         public Task<User?> GetUserByEmailAsync(string email)
         {
             return _dbContext.Users.FirstOrDefaultAsync(x => x.Email == new Email(email));

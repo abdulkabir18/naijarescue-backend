@@ -12,5 +12,9 @@ namespace Infrastructure.Persistence.Repositories
             _dbContext = dbContext;
         }
 
+        public async Task AddAsync(ICollection<Notification> notifications)
+        {
+            await _dbContext.Notifications.AddRangeAsync(notifications);
+        }
     }
 }

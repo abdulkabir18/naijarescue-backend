@@ -46,7 +46,7 @@ namespace Infrastructure.Persistence.Repositories
 
         public async Task<T?> GetAsync(Guid id)
         {
-            return await _dbSet.FirstOrDefaultAsync(e => e.Id == id);
+            return await _dbSet.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
         }
 
         public Task UpdateAsync(T entity)
