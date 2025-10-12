@@ -107,6 +107,22 @@ namespace Domain.Entities
             UserName = userName;
         }
 
+        public void UpdateUserName(string? userName)
+        {
+            if (UserName == userName)
+                throw new BusinessRuleException("New username cannot be the same as the old one.");
+
+            UserName = userName;
+        }
+
+        public void UpdateFullName(string fullName)
+        {
+            if (string.IsNullOrWhiteSpace(fullName))
+                throw new ValidationException("Full name cannot be empty.");
+
+            FullName = fullName;
+        }
+
         public void SetAddress(Address address)
         {
             Address = address ?? throw new ArgumentNullException(nameof(address));
@@ -146,9 +162,9 @@ namespace Domain.Entities
             IsPhoneNumberVerified = false;
         }
 
-        public void AddEmergencyContact(string name, PhoneNumber phoneNumber, Email email, RelationshipType relationship, string? otherRelationship = null)
+        public EmergencyContact AddEmergencyContact(string name, Email email, RelationshipType relationship, string? otherRelationship = null)
         {
-            var contact = new EmergencyContact(name, phoneNumber, email, relationship, otherRelationship);
+            var contact = new EmergencyContact(name, email, relationship, otherRelationship);
 
             if (EmergencyContacts.Any(c =>
                 (c.PhoneNumber != null && c.PhoneNumber == contact.PhoneNumber) ||
@@ -159,6 +175,7 @@ namespace Domain.Entities
 
             EmergencyContacts.Add(contact);
             AddDomainEvent(new EmergencyContactAddedEvent(Id, contact.Name, contact.Email.Value, contact.GetRelationshipLabel()));
+            return contact;
         }
 
         public void RemoveEmergencyContact(PhoneNumber? phoneNumber, Email? email)
@@ -168,38 +185,38 @@ namespace Domain.Entities
                 (email != null && c.Email == email));
 
             if (contact == null)
-                throw new NotFoundException(nameof(EmergencyContact), phoneNumber?.Value != null ? Guid.Empty : Guid.Empty); // you can adjust key later
+                throw new NotFoundException(nameof(EmergencyContact), phoneNumber?.Value != null ? Guid.Empty : Guid.Empty);
 
             EmergencyContacts.Remove(contact);
         }
 
-        public void UpdateEmergencyContact(PhoneNumber? phoneNumber, Email? email, string? newName = null, RelationshipType? newRelationship = null, string? newOther = null)
-        {
-            var contact = EmergencyContacts.FirstOrDefault(c =>
-                (email != null && c.Email == email) ||
-                (phoneNumber != null && c.PhoneNumber == phoneNumber));
+        // public void UpdateEmergencyContact(PhoneNumber? phoneNumber, Email? email, string? newName = null, RelationshipType? newRelationship = null, string? newOther = null)
+        // {
+        //     var contact = EmergencyContacts.FirstOrDefault(c =>
+        //         (email != null && c.Email == email) ||
+        //         (phoneNumber != null && c.PhoneNumber == phoneNumber));
 
-            if (contact == null)
-                throw new NotFoundException(nameof(EmergencyContact), Guid.Empty); // adjust key logic
+        //     if (contact == null)
+        //         throw new NotFoundException(nameof(EmergencyContact), Guid.Empty); // adjust key logic
 
-            var updated = new EmergencyContact(
-                newName ?? contact.Name,
-                phoneNumber ?? contact.PhoneNumber!,
-                email ?? contact.Email!,
-                newRelationship ?? contact.Relationship,
-                newOther ?? contact.OtherRelationship
-            );
+        //     var updated = new EmergencyContact(
+        //         newName ?? contact.Name,
+        //         phoneNumber ?? contact.PhoneNumber!,
+        //         email ?? contact.Email!,
+        //         newRelationship ?? contact.Relationship,
+        //         newOther ?? contact.OtherRelationship
+        //     );
 
-            if (EmergencyContacts.Any(c => c != contact &&
-                ((c.PhoneNumber != null && c.PhoneNumber == updated.PhoneNumber) ||
-                 (c.Email != null && c.Email == updated.Email))))
-            {
-                throw new BusinessRuleException("Another emergency contact with this phone or email already exists.");
-            }
+        //     if (EmergencyContacts.Any(c => c != contact &&
+        //         ((c.PhoneNumber != null && c.PhoneNumber == updated.PhoneNumber) ||
+        //          (c.Email != null && c.Email == updated.Email))))
+        //     {
+        //         throw new BusinessRuleException("Another emergency contact with this phone or email already exists.");
+        //     }
 
-            EmergencyContacts.Remove(contact);
-            EmergencyContacts.Add(updated);
-        }
+        //     EmergencyContacts.Remove(contact);
+        //     EmergencyContacts.Add(updated);
+        // }
 
         public void VerifyEmail() => IsEmailVerified = true;
         public void VerifyPhoneNumber() => IsPhoneNumberVerified = true;

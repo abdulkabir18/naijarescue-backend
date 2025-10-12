@@ -38,11 +38,11 @@ namespace Infrastructure.Services.Notifications
                 return;
             }
 
-            var responders = (await _responderRepository.GetNearbyRespondersForIncidentAsync(
+            var responders = await _responderRepository.GetNearbyRespondersForIncidentAsync(
                 incident.Location,
                 incident.Type,
                 radiusInKm
-            )).ToList();
+            );
 
             if (!responders.Any())
             {

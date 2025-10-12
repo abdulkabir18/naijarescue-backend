@@ -46,22 +46,22 @@ namespace Application.Features.Agencies.Validators
                     .SetValidator(new AddressDtoValidator());
             });
 
-            RuleFor(x => x.SupportedIncidents)
+            RuleFor(x => x.SupportedIncidents.Types)
                 .NotNull().WithMessage("At least one supported incident type is required.")
                 .Must(list => list.Any()).WithMessage("At least one supported incident type must be provided.")
                 .Must(c => c.Select(x => x.AcceptedIncidentType).Distinct().Count() == c.Count)
                 .WithMessage("Duplicate incident types are not allowed.");
 
-            RuleForEach(x => x.SupportedIncidents)
+            RuleForEach(x => x.SupportedIncidents.Types)
                 .SetValidator(new IncidentTypeDtoValidator());
 
-            RuleFor(x => x.SupportedWorkTypes)
+            RuleFor(x => x.SupportedWorkTypes.Types)
                 .NotNull().WithMessage("At least one supported work type is required.")
                 .Must(list => list.Any()).WithMessage("At least one supported work type must be provided.")
                 .Must(c => c.Select(x => x.AcceptedWorkType).Distinct().Count() == c.Count)
                 .WithMessage("Duplicate work types are not allowed.");
 
-            RuleForEach(x => x.SupportedWorkTypes)
+            RuleForEach(x => x.SupportedWorkTypes.Types)
                 .SetValidator(new WorkTypeDtoValidator());
         }
     }

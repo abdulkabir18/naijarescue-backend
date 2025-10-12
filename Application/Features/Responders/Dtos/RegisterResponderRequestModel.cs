@@ -7,6 +7,9 @@ namespace Application.Features.Responders.Dtos
         RegisterUserRequestModel RegisterUserRequest,
         Guid AgencyId, string? BadgeNumber, string? Rank,
         GeoLocationDto? AssignedLocation,
-        ICollection<WorkTypeDto> Capabilities,
-        ICollection<IncidentTypeDto> Specialties);
+        WorkTypesDto Capabilities,
+        IncidentTypesDto Specialties);
+
+    public record WorkTypesDto(ICollection<WorkTypeDto> Types);
+    public record IncidentTypesDto(ICollection<IncidentTypeDto> Types);
 }

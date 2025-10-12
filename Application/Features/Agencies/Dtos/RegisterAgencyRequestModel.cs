@@ -8,6 +8,9 @@ namespace Application.Features.Agencies.Dtos
         RegisterUserRequestModel RegisterUserRequest,
         string AgencyName, string AgencyEmail, string AgencyPhoneNumber, IFormFile? AgencyLogo,
         AddressDto? AgencyAddress,
-        ICollection<IncidentTypeDto> SupportedIncidents,
-        ICollection<WorkTypeDto> SupportedWorkTypes);
+        IncidentTypesDto SupportedIncidents,
+        WorkTypesDto SupportedWorkTypes);
+
+    public record IncidentTypesDto(ICollection<IncidentTypeDto> Types);
+    public record WorkTypesDto(ICollection<WorkTypeDto> Types);
 }

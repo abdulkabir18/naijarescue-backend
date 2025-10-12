@@ -67,7 +67,7 @@ namespace Application.Features.Incidents.EventHandlers
                     await _emailService.SendEmailAsync(reporterEmail, subject, body);
                 }
 
-                if (!string.IsNullOrEmpty(victimEmail) && victimEmail != reporterEmail)
+                if (!string.IsNullOrEmpty(victimEmail) && victimEmail != reporterEmail && !string.IsNullOrEmpty(reporterEmail))
                 {
                     var subject = "Emergency Incident Reported For You";
                     var body = $@"

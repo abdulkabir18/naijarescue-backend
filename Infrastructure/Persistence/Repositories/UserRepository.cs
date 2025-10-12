@@ -48,6 +48,16 @@ namespace Infrastructure.Persistence.Repositories
             return _dbContext.Users.AsNoTracking().AnyAsync(x => x.Email == new Email(email));
         }
 
+        public Task<bool> IsEmergencyContactEmailExistAsync(Guid userId, string email)
+        {
+            return _dbContext.Users.AsNoTracking().Where(u => u.Id == userId).SelectMany(u => u.EmergencyContacts).AnyAsync(c => c.Email == new Email(email));
+        }
+
+        public Task<bool> IsEmergencyContactPhoneNumberExistAsync(Guid userId, string phoneNumber)
+        {
+            return _dbContext.Users.AsNoTracking().Where(u => u.Id == userId).SelectMany(u => u.EmergencyContacts).AnyAsync(c => c.PhoneNumber == new PhoneNumber(phoneNumber));
+        }
+
         public Task<bool> IsPhoneNumberExistAsync(string phoneNumber)
         {
             return _dbContext.Users.AsNoTracking().AnyAsync(x => x.PhoneNumber == new PhoneNumber(phoneNumber));

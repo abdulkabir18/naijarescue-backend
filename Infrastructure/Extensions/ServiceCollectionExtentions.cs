@@ -1,4 +1,5 @@
-﻿using Application.Common.Interfaces.Repositories;
+﻿using Application.Common.Interfaces.Notifications;
+using Application.Common.Interfaces.Repositories;
 using Application.Interfaces.Auth;
 using Application.Interfaces.External;
 using Application.Interfaces.Repositories;
@@ -13,6 +14,7 @@ using Infrastructure.Security;
 using Infrastructure.Services;
 using Infrastructure.Services.Auth;
 using Infrastructure.Services.Email;
+using Infrastructure.Services.Notifications;
 using Infrastructure.Services.Storage;
 using Infrastructure.Services.Storage.Manager;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +29,11 @@ namespace Infrastructure.Extensions
         {
             services.AddSingleton<IVerificationService, VerificationService>();
             services.AddScoped<IAuthService, JwtService>();
+            services.AddScoped<IInAppNotificationService, InAppNotificationService>();
+            services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<IAgencyNotifier, AgencyNotifier>();
+            services.AddScoped<IResponderNotifier, ResponderNotifier>();
+
 
             return services;
         }

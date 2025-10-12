@@ -8,7 +8,7 @@ using Infrastructure.Settings;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-builder.Services.AddSignalR();
+builder.Services.AddHubServices();
 builder.Services.AddCorsPolicy();
 builder.Services.AddApiVersioningWithExplorer();
 builder.Services.AddSwaggerWithJwt();

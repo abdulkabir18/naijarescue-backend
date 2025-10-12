@@ -50,7 +50,7 @@ namespace Infrastructure.Persistence.Repositories
                 .Include(r => r.User)
                 .Where(r =>
                     r.AssignedLocation != null &&
-                    r.Status == ResponderStatus.Avaliable &&
+                    r.Status == ResponderStatus.Available &&
                     r.IsVerified &&
                     r.Agency != null &&
                     r.Agency.IsActive &&
@@ -73,6 +73,7 @@ namespace Infrastructure.Persistence.Repositories
 
             var responders = await _dbContext.Responders
                 .AsNoTracking()
+                .AsSplitQuery()
                 .Include(r => r.User)
                 .Include(r => r.Agency)
                     .ThenInclude(a => a.SupportedIncidents)
@@ -80,7 +81,7 @@ namespace Infrastructure.Persistence.Repositories
                 .Include(r => r.Capabilities)
                 .Where(r =>
                     r.AssignedLocation != null &&
-                    r.Status == ResponderStatus.Avaliable &&
+                    r.Status == ResponderStatus.Available &&
                     r.IsVerified &&
                     r.Agency != null &&
                     r.Agency.IsActive &&

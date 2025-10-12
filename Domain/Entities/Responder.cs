@@ -118,7 +118,7 @@ namespace Domain.Entities
         public void Verify()
         {
             IsVerified = true;
-            AddDomainEvent(new ResponderVerifiedEvent(Id));
+            // AddDomainEvent(new ResponderVerifiedEvent(Id));
         }
 
         public void Unverify()

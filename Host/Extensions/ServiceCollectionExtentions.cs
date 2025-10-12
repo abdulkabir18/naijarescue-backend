@@ -1,4 +1,6 @@
-﻿using Application.Interfaces.CurrentUser;
+﻿using Application.Common.Interfaces.Realtime;
+using Application.Interfaces.CurrentUser;
+using Host.Services;
 using Infrastructure.Services.CurrentUser;
 using Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -11,6 +13,13 @@ namespace Host.Extensions
 {
     public static class ServiceCollectionExtentions
     {
+        public static IServiceCollection AddHubServices(this IServiceCollection services)
+        {
+            services.AddSignalR();
+            services.AddScoped<IRealtimeNotifier, SignalRRealtimeNotifier>();
+
+            return services;
+        }
         public static IServiceCollection AddApiVersioningWithExplorer(this IServiceCollection services)
         {
             services.AddApiVersioning(options =>

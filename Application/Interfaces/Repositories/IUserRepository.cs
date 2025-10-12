@@ -12,5 +12,7 @@ namespace Application.Interfaces.Repositories
         Task<bool> IsPhoneNumberExistAsync(string phoneNumber);
         Task<bool> IsUserNameExistAsync(string userName);
         Task<IEnumerable<string>> GetEmergencyContactEmailsAsync(Guid userId);
+        Task<bool> IsEmergencyContactEmailExistAsync(Guid userId, string email);
+        Task<bool> IsEmergencyContactPhoneNumberExistAsync(Guid userId, string phoneNumber);
     }
 }

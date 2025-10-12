@@ -24,7 +24,6 @@ namespace Domain.ValueObjects
 
         private static string Normalize(string value)
         {
-            // Normalize 08012345678 → +2348012345678
             if (value.StartsWith("0"))
                 return "+234" + value[1..];
             return value;

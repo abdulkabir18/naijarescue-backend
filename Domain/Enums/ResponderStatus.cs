@@ -2,7 +2,7 @@
 {
     public enum ResponderStatus
     {
-        Avaliable = 1,     // ✅ Ready for assignment
+        Available = 1,     // ✅ Ready for assignment
         OnDuty,         // 🚨 Actively responding to an incident
         OffDuty,        // ❌ Not working (rest time or end of shift)
         Busy,            // ⚠️ Temporarily occupied (e.g., in a meeting)

@@ -14,7 +14,7 @@ namespace Domain.ValueObjects
 
         private EmergencyContact() { }
 
-        public EmergencyContact(string name, PhoneNumber phoneNumber, Email email, RelationshipType relationship, string? otherRelationship = null)
+        public EmergencyContact(string name, Email email, RelationshipType relationship, string? otherRelationship = null)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Name is required.", nameof(name));
@@ -24,13 +24,17 @@ namespace Domain.ValueObjects
 
 
             Name = name;
-            PhoneNumber = phoneNumber;
             Email = email;
             Relationship = relationship;
             OtherRelationship = relationship == RelationshipType.Other ? otherRelationship : null;
 
             IsEmailVerified = false;
             IsPhoneNumberVerified = false;
+        }
+
+        public void SetPhoneNumber(PhoneNumber phoneNumber)
+        {
+            PhoneNumber = phoneNumber ?? throw new ArgumentNullException(nameof(phoneNumber));
         }
 
         public string GetRelationshipLabel()

@@ -1,8 +1,12 @@
 ﻿using Application.Common.Dtos;
+using Application.Interfaces.CurrentUser;
 using Application.Interfaces.External;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.UnitOfWork;
+using Domain.Entities;
+using Domain.Enums;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Features.Users.Commands.VerifyUserEmail
 {
@@ -11,29 +15,69 @@ namespace Application.Features.Users.Commands.VerifyUserEmail
         private readonly IUserRepository _userRepository;
         private readonly IVerificationService _verificationService;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IAuditLogRepository _auditLogRepository;
+        private readonly ICurrentUserService _currentUserService;
+        private readonly ILogger<VerifyUserEmailCommandHandler> _logger;
 
-        public VerifyUserEmailCommandHandler(IUserRepository userRepository, IVerificationService verificationService, IUnitOfWork unitOfWork)
+        public VerifyUserEmailCommandHandler(IUserRepository userRepository, IVerificationService verificationService, IUnitOfWork unitOfWork, IAuditLogRepository auditLogRepository, ICurrentUserService currentUserService, ILogger<VerifyUserEmailCommandHandler> logger)
         {
             _userRepository = userRepository;
             _verificationService = verificationService;
             _unitOfWork = unitOfWork;
+            _auditLogRepository = auditLogRepository;
+            _currentUserService = currentUserService;
+            _logger = logger;
         }
 
         public async Task<Result<bool>> Handle(VerifyUserEmailCommand request, CancellationToken cancellationToken)
         {
-            if(request.Model == null || request == null)
-                return Result<bool>.Failure("Invalid request payload.");
-            var user = await _userRepository.GetUserByEmailAsync(request.Model.Email);
-            if (user == null)
-                return Result<bool>.Failure("User not found.");
-            var isCodeValid = await _verificationService.ValidateCodeAsync(user.Id, request.Model.Code);
-            if (!isCodeValid)
-                return Result<bool>.Failure("Invalid or expired verification code.");
+            try
+            {
+                _logger.LogInformation("Starting email verification process for {Email}", request.Model?.Email);
 
-            user.VerifyEmail();
+                if (request.Model == null)
+                {
+                    _logger.LogWarning("VerifyUserEmailCommand received with a null model.");
+                    return Result<bool>.Failure("Invalid request payload.");
+                }
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-            return Result<bool>.Success(true, "User email verified successfully.");
+                var user = await _userRepository.GetUserByEmailAsync(request.Model.Email);
+                if (user == null)
+                {
+                    _logger.LogWarning("Email verification failed: User with email {Email} not found.", request.Model.Email);
+                    return Result<bool>.Failure("User not found.");
+                }
+
+                var isCodeValid = await _verificationService.ValidateCodeAsync(user.Id, request.Model.Code);
+                if (!isCodeValid)
+                {
+                    _logger.LogWarning("Invalid verification code provided for user {UserId}.", user.Id);
+                    return Result<bool>.Failure("Invalid or expired verification code.");
+                }
+
+                user.VerifyEmail();
+
+                var auditLog = new AuditLog(
+                    AuditActionType.Updated,
+                    nameof(User),
+                    user.Id,
+                    "User email address was successfully verified.",
+                    user.Id,
+                    _currentUserService.IpAddress,
+                    _currentUserService.UserAgent);
+
+                await _auditLogRepository.AddAsync(auditLog);
+
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+                _logger.LogInformation("Email successfully verified for user {UserId}.", user.Id);
+                return Result<bool>.Success(true, "User email verified successfully.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An unexpected error occurred during email verification for {Email}", request.Model?.Email);
+                return Result<bool>.Failure("An unexpected error occurred during email verification.");
+            }
         }
     }
 }

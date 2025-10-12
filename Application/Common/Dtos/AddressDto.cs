@@ -1,6 +1,4 @@
-﻿using Swashbuckle.AspNetCore.Annotations;
-
-namespace Application.Common.Dtos
+﻿namespace Application.Common.Dtos
 {
     public record AddressDto
     {
