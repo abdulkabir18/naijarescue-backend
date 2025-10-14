@@ -34,23 +34,23 @@ namespace Application.Features.Responders.Validators
                     .SetValidator(new GeoLocationDtoValidator());
             });
 
-            RuleFor(x => x.Capabilities.Types)
-                .NotNull().WithMessage("Responder capabilities are required.")
-                .Must(c => c.Any()).WithMessage("At least one capability is required.")
-                .Must(c => c.Select(x => x.AcceptedWorkType).Distinct().Count() == c.Count)
-                .WithMessage("Duplicate work types are not allowed.");
+            //RuleFor(x => x.Capabilities.Types)
+            //    .NotNull().WithMessage("Responder capabilities are required.")
+            //    .Must(c => c.Any()).WithMessage("At least one capability is required.")
+            //    .Must(c => c.Select(x => x.AcceptedWorkType).Distinct().Count() == c.Count)
+            //    .WithMessage("Duplicate work types are not allowed.");
 
-            RuleForEach(x => x.Capabilities.Types)
-                .SetValidator(new WorkTypeDtoValidator());
+            //RuleForEach(x => x.Capabilities.Types)
+            //    .SetValidator(new WorkTypeDtoValidator());
 
-            RuleFor(x => x.Specialties.Types)
-                .NotNull().WithMessage("Responder specialties are required.")
-                .Must(s => s.Any()).WithMessage("At least one specialty is required.")
-                .Must(s => s.Select(x => x.AcceptedIncidentType).Distinct().Count() == s.Count)
-                .WithMessage("Duplicate incident types are not allowed.");
+            //RuleFor(x => x.Specialties.Types)
+            //    .NotNull().WithMessage("Responder specialties are required.")
+            //    .Must(s => s.Any()).WithMessage("At least one specialty is required.")
+            //    .Must(s => s.Select(x => x.AcceptedIncidentType).Distinct().Count() == s.Count)
+            //    .WithMessage("Duplicate incident types are not allowed.");
 
-            RuleForEach(x => x.Specialties.Types)
-                .SetValidator(new IncidentTypeDtoValidator());
+            //RuleForEach(x => x.Specialties.Types)
+            //    .SetValidator(new IncidentTypeDtoValidator());
         }
     }
 }

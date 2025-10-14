@@ -49,6 +49,9 @@ namespace Application.Features.Agencies.Commands.RegisterAgency
                     return Result<Guid>.Failure("Invalid request payload.");
                 }
 
+                _logger.LogInformation("Incidents count: {Count}", request.IncidentWorkTypes.SupportedIncidents.Count);
+                _logger.LogInformation("WorkTypes count: {Count}", request.IncidentWorkTypes.SupportedWorkTypes.Count);
+
                 Guid currentUserId = _currentUserService.UserId;
                 if (currentUserId == Guid.Empty)
                 {
@@ -112,7 +115,7 @@ namespace Application.Features.Agencies.Commands.RegisterAgency
                     agency.SetLogo(imageUrl);
                 }
 
-                foreach (var incident in request.Model.SupportedIncidents.Types)
+                foreach (var incident in request.IncidentWorkTypes.SupportedIncidents)
                 {
                     if (!Enum.IsDefined(typeof(IncidentType), incident.AcceptedIncidentType))
                         return Result<Guid>.Failure($"IncidentType '{incident.AcceptedIncidentType}' is not valid.");
@@ -120,7 +123,7 @@ namespace Application.Features.Agencies.Commands.RegisterAgency
                     agency.AddSupportedIncident(incident.AcceptedIncidentType);
                 }
 
-                foreach (var work in request.Model.SupportedWorkTypes.Types)
+                foreach (var work in request.IncidentWorkTypes.SupportedWorkTypes)
                 {
                     if (!Enum.IsDefined(typeof(WorkType), work.AcceptedWorkType))
                         return Result<Guid>.Failure($"WorkType '{work.AcceptedWorkType}' is not valid.");
@@ -157,5 +160,4 @@ namespace Application.Features.Agencies.Commands.RegisterAgency
             }
         }
     }
-
 }

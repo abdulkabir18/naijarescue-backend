@@ -4,5 +4,5 @@ using MediatR;
 
 namespace Application.Features.Agencies.Commands.RegisterAgency
 {
-    public record RegisterAgencyCommand(RegisterAgencyRequestModel Model) : IRequest<Result<Guid>>;
+    public record RegisterAgencyCommand(RegisterAgencyRequestModel Model, IncidentWorkTypesDto IncidentWorkTypes) : IRequest<Result<Guid>>;
 }

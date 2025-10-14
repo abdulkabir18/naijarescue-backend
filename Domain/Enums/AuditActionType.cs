@@ -7,6 +7,7 @@ namespace Domain.Enums
         Deleted,
         Accessed,
         Warning,
+        Security,
         SoftDeleted,
         Restored,
         Login,

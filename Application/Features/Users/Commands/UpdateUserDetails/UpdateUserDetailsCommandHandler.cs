@@ -71,7 +71,6 @@ namespace Application.Features.Users.Commands.UpdateUserDetails
                     user.UpdateUserName(request.Model.UserName);
                 }
 
-                user.MarkUpdated();
                 await _userRepository.UpdateAsync(user);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 

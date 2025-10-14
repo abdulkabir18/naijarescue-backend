@@ -42,6 +42,8 @@ namespace Host.Extensions
         {
             services.AddSwaggerGen(options =>
             {
+                options.CustomSchemaIds(type => type.FullName);
+
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",

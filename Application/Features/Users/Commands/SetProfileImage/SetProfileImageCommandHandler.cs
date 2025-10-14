@@ -58,7 +58,6 @@ namespace Application.Features.Users.Commands.SetProfileImage
                 string url = await _storageManager.UploadProfileImageAsync(stream, request.Image.FileName, request.Image.ContentType);
 
                 user.SetProfilePicture(url);
-                user.MarkUpdated();
 
                 await _userRepository.UpdateAsync(user);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);

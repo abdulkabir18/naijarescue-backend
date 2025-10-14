@@ -6,6 +6,8 @@
         Accident,
         Fire,
         Flood,
+        Rescue,
+        Evacuation,
         Kidnapping,
         Riot,
         NaturalDisaster,

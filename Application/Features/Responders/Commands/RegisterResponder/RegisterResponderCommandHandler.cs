@@ -107,7 +107,7 @@ namespace Application.Features.Responders.Commands.RegisterResponder
                 if (!string.IsNullOrEmpty(request.Model.Rank))
                     responder.SetRank(request.Model.Rank);
 
-                foreach (var capability in request.Model.Capabilities.Types)
+                foreach (var capability in request.IncidentWorkTypes.SupportedWorkTypes)
                 {
                     if (!Enum.IsDefined(typeof(WorkType), capability.AcceptedWorkType))
                         return Result<Guid>.Failure($"Invalid work type: {capability.AcceptedWorkType}");
@@ -115,7 +115,7 @@ namespace Application.Features.Responders.Commands.RegisterResponder
                     responder.AddCapability(capability.AcceptedWorkType, responder.Id);
                 }
 
-                foreach (var specialty in request.Model.Specialties.Types)
+                foreach (var specialty in request.IncidentWorkTypes.SupportedIncidents)
                 {
                     if (!Enum.IsDefined(typeof(IncidentType), specialty.AcceptedIncidentType))
                         return Result<Guid>.Failure($"Invalid incident type: {specialty.AcceptedIncidentType}");

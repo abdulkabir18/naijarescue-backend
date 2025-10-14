@@ -36,13 +36,13 @@ namespace Infrastructure.Services
 
             _codes[userId] = code;
             _lastRequest[userId] = DateTime.UtcNow;
-            Console.WriteLine(_codes.Count);
+            //Console.WriteLine(_codes.Count);
             return Task.FromResult(code.Code);
         }
 
         public Task<bool> ValidateCodeAsync(Guid userId, string code)
         {
-            Console.WriteLine(_codes.Count);
+            //Console.WriteLine(_codes.Count);
 
             if (!_codes.TryGetValue(userId, out var storedCode))
                 return Task.FromResult(false);

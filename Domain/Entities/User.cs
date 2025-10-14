@@ -91,6 +91,14 @@ namespace Domain.Entities
             PasswordHash = hasher.HashPassword(rawPassword);
         }
 
+        public void ChangePassword(string newPassword, IPasswordHasher hasher)
+        {
+            if (string.IsNullOrWhiteSpace(newPassword))
+                throw new ValidationException("Password cannot be empty.");
+
+            PasswordHash = hasher.HashPassword(newPassword);
+        }
+
         public bool VerifyPassword(string password, IPasswordHasher hasher)
         {
             if (string.IsNullOrWhiteSpace(password))

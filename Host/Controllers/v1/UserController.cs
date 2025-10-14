@@ -1,5 +1,6 @@
 ﻿using Application.Common.Dtos;
 using Application.Features.Users.Commands.AddEmergencyContact;
+using Application.Features.Users.Commands.ResetPassword;
 using Application.Features.Users.Commands.SetProfileImage;
 using Application.Features.Users.Commands.UpdateUserDetails;
 using MediatR;
@@ -30,7 +31,7 @@ namespace Host.Controllers.v1
         [ProducesResponseType(typeof(Result<Unit>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Result<Unit>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<Result<Unit>>> SetProfileImage([FromForm] IFormFile image)
+        public async Task<ActionResult<Result<Unit>>> SetProfileImage(IFormFile image)
         {
             if (image == null || image.Length == 0)
             {
@@ -87,6 +88,32 @@ namespace Host.Controllers.v1
             if (command == null || command.Model == null)
             {
                 return BadRequest(Result<string>.Failure("Invalid emergency contact data."));
+            }
+
+            var result = await _mediator.Send(command);
+
+            if (!result.Succeeded)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
+        [SwaggerOperation(
+            Summary = "Reset the current user's password.",
+            Description = "Requires authentication. Provide current password, new password, and confirmation of the new password."
+        )]
+        [Authorize]
+        [HttpPost("reset-password")]
+        [ProducesResponseType(typeof(Result<bool>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Result<bool>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<Result<bool>>> ResetPassword([FromBody] ResetPasswordCommand command)
+        {
+            if (command == null || command.Model == null)
+            {
+                return BadRequest(Result<bool>.Failure("Invalid password reset data."));
             }
 
             var result = await _mediator.Send(command);
