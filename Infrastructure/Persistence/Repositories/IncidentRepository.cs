@@ -21,9 +21,15 @@ namespace Infrastructure.Persistence.Repositories
         public async Task<Incident?> GetByIdWithDetailsAsync(Guid id)
         {
             return await _dbContext.Incidents
+                .Include(i => i.AssignedResponders)
+                    .ThenInclude(r => r.Responder)
+                    .ThenInclude(res => res.User)
                 .Include(i => i.IncidentMedias)
-                .Include(i => i.User)
-                .FirstOrDefaultAsync(i => i.Id == id && !i.IsDeleted);
+                .Include(i => i.LiveStreams)
+                    .ThenInclude(ls => ls.Participants)
+                        .ThenInclude(p => p.User)
+                .AsSplitQuery()
+                .FirstOrDefaultAsync(i => i.Id == id);
         }
 
         public async Task<IEnumerable<Incident>> GetNearbyIncidentsAsync(double latitude, double longitude, double radiusKm)

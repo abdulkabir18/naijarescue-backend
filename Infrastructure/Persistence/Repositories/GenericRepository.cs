@@ -22,6 +22,11 @@ namespace Infrastructure.Persistence.Repositories
             await _dbSet.AddAsync(entity);
         }
 
+        public void Attach(T entity)
+        {
+            _dbSet.Attach(entity);
+        }
+
         public Task DeleteAsync(T entity)
         {
             entity.SoftDelete();
@@ -47,6 +52,11 @@ namespace Infrastructure.Persistence.Repositories
         public async Task<T?> GetAsync(Guid id)
         {
             return await _dbSet.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
+        }
+
+        public async Task<T?> GetForUpdateAsync(Guid id)
+        {
+            return await _dbSet.FirstOrDefaultAsync(e => e.Id == id);
         }
 
         public Task UpdateAsync(T entity)

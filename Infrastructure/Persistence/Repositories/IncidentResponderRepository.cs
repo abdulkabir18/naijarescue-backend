@@ -1,6 +1,8 @@
 using Application.Interfaces.Repositories;
 using Domain.Entities;
+using Domain.Enums;
 using Infrastructure.Persistence.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Repositories
 {
@@ -11,5 +13,11 @@ namespace Infrastructure.Persistence.Repositories
         {
             _dbContext = dbContext;
         }
+
+        public async Task<bool> CheckRoleAssignedAsync(Guid incidentId, ResponderRole role)
+        {
+            return await _dbContext.IncidentResponders.AsNoTracking().AnyAsync(r => r.IncidentId == incidentId && r.Role == role && r.IsActive && !r.IsDeleted);
+        }
+
     }
 }

@@ -1,9 +1,9 @@
 namespace Application.Features.Incidents.Dtos
 {
     public record VictimDetailsDto(
-        string Name,
+        string? Name,
         string? PhoneNumber,
-        string Email,
-        string Description
+        string? Email,
+        string? Description
     );
 }

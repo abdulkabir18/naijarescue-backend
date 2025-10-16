@@ -60,7 +60,7 @@ namespace Domain.Common.Templates
     } }
     .role { {font - size: 18px;
       font-weight: bold;
-      color: #023e8a;
+      color: #0550b3ff;
       margin: 10px 0;
     } }
     .footer { {font - size: 12px;

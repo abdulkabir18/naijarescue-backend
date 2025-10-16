@@ -12,15 +12,15 @@ namespace Domain.Entities
         public User User { get; private set; } = default!;
         public Guid AgencyId { get; private set; }
         public Agency Agency { get; private set; } = default!;
-        public string? BadgeNumber { get; private set; }
-        public string? Rank { get; private set; }
+        // public string? BadgeNumber { get; private set; }
+        // public string? Rank { get; private set; }
         public ResponderStatus Status { get; private set; }
         public GeoLocation? AssignedLocation { get; private set; }
-        public GeoLocation? CurrentLocation { get; private set; }
+        // public GeoLocation? CurrentLocation { get; private set; }
         public bool IsVerified { get; private set; }
 
-        public ICollection<ResponderSupportedWork> Capabilities { get; private set; } = [];
-        public ICollection<ResponderSupportedIncident> Specialties { get; private set; } = [];
+        // public ICollection<ResponderSupportedWork> Capabilities { get; private set; } = [];
+        // public ICollection<ResponderSupportedIncident> Specialties { get; private set; } = [];
         public ICollection<IncidentResponder> IncidentAssignments { get; private set; } = [];
 
         private Responder() { }
@@ -76,8 +76,8 @@ namespace Domain.Entities
             if (Capabilities.Any(c => c.Type == type && c.ResponderId == responderId))
                 throw new BusinessRuleException($"Work type '{type}' is already supported by this responder.");
 
-            if (!User.Agency!.SupportedWorkTypes.Any(c => c.Type == type))
-                throw new BusinessRuleException($"Work type '{type}' is not supported by the agency.");
+            // if (!User.Agency!.SupportedWorkTypes.Any(c => c.Type == type))
+            //     throw new BusinessRuleException($"Work type '{type}' is not supported by the agency.");
 
             Capabilities.Add(new ResponderSupportedWork(responderId, type));
             // AddDomainEvent(new ResponderCapabilityAddedEvent(Id, type));
@@ -98,8 +98,8 @@ namespace Domain.Entities
             if (Specialties.Any(s => s.Type == type && s.ResponderId == responderId))
                 throw new BusinessRuleException($"Incident type '{type}' is already supported by this responder.");
 
-            if (!User.Agency!.SupportedIncidents.Any(w => w.Type == type))
-                throw new BusinessRuleException($"Incident type '{type}' is not supported by the agency.");
+            // if (!User.Agency!.SupportedIncidents.Any(w => w.Type == type))
+            //     throw new BusinessRuleException($"Incident type '{type}' is not supported by the agency.");
 
             Specialties.Add(new ResponderSupportedIncident(responderId, type));
             // AddDomainEvent(new ResponderSpecialtyAddedEvent(Id, type));

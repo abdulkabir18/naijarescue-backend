@@ -55,10 +55,10 @@ namespace Domain.Entities
             if (Status is IncidentStatus.Resolved or IncidentStatus.Cancelled)
                 throw new BusinessRuleException("Cannot assign responder to a resolved or cancelled incident.");
 
-            if (AssignedResponders.Any(r => r.ResponderId == responderId && r.IsActive))
-                throw new BusinessRuleException("This responder is already assigned to the incident.");
+            // if (AssignedResponders.Any(r => r.ResponderId == responderId && r.IsActive))
+            //     throw new BusinessRuleException("This responder is already assigned to the incident.");
 
-            AssignedResponders.Add(new IncidentResponder(Id, responderId, role));
+            AssignedResponders.Add(new IncidentResponder(this.Id, responderId, role));
 
             if (Status == IncidentStatus.Pending)
                 Status = IncidentStatus.Reported;
@@ -86,6 +86,12 @@ namespace Domain.Entities
 
             Status = IncidentStatus.InProgress;
             AddDomainEvent(new IncidentStatusChangedEvent(Id, Status));
+        }
+
+        public void MarkAsReport()
+        {
+            if (Status == IncidentStatus.Pending)
+                Status = IncidentStatus.Reported;
         }
 
         public void MarkResolved()

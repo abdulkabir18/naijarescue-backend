@@ -15,14 +15,16 @@ namespace Application.Features.Incidents.Commands.AssignResponder
     {
         private readonly ICurrentUserService _currentUserService;
         private readonly IIncidentRepository _incidentRepository;
+        private readonly IIncidentResponderRepository _incidentResponderRepository;
         private readonly IResponderRepository _responderRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<AssignResponderCommandHandler> _logger;
         private readonly IAuditLogRepository _auditLogRepository;
 
-        public AssignResponderCommandHandler(ICurrentUserService currentUserService, IIncidentRepository incidentRepository, IResponderRepository responderRepository, IUnitOfWork unitOfWork, ILogger<AssignResponderCommandHandler> logger, IAuditLogRepository auditLogRepository)
+        public AssignResponderCommandHandler(ICurrentUserService currentUserService, IIncidentResponderRepository incidentResponderRepository, IIncidentRepository incidentRepository, IResponderRepository responderRepository, IUnitOfWork unitOfWork, ILogger<AssignResponderCommandHandler> logger, IAuditLogRepository auditLogRepository)
         {
             _currentUserService = currentUserService;
+            _incidentResponderRepository = incidentResponderRepository;
             _incidentRepository = incidentRepository;
             _responderRepository = responderRepository;
             _unitOfWork = unitOfWork;
@@ -54,15 +56,15 @@ namespace Application.Features.Incidents.Commands.AssignResponder
                     return Result<Guid>.Failure("Only agency admin or super admin can assign responders to incidents.");
                 }
 
-                var incident = await _incidentRepository.GetAsync(request.Model.IncidentId);
-                if (incident == null)
+                var incident = await _incidentRepository.GetForUpdateAsync(request.Model.IncidentId);
+                if (incident == null || incident.IsDeleted)
                 {
                     _logger.LogWarning("Incident with ID {IncidentId} not found.", request.Model.IncidentId);
                     return Result<Guid>.Failure("Incident not found.");
                 }
 
-                var responder = await _responderRepository.GetAsync(r => r.Id == request.Model.ResponderId && !r.IsDeleted);
-                if (responder == null)
+                var responder = await _responderRepository.GetForUpdateAsync(request.Model.ResponderId);
+                if (responder == null || responder.IsDeleted)
                 {
                     _logger.LogWarning("Responder with ID {ResponderId} not found.", request.Model.ResponderId);
                     return Result<Guid>.Failure("Responder not found.");
@@ -74,14 +76,26 @@ namespace Application.Features.Incidents.Commands.AssignResponder
                     return Result<Guid>.Failure("Responder is not available or not verified.");
                 }
 
-                incident.AssignResponder(responder.Id, request.Model.Role);
-                responder.UpdateResponderStatus(ResponderStatus.OnDuty);
+                // bool isExist = await _incidentResponderRepository.CheckRoleAssignedAsync(incident.Id, request.Model.Role);
+                // if (isExist)
+                // {
+                //     _logger.LogWarning("Responder with role {Role} is already assigned to incident {IncidentId}.", request.Model.Role, incident.Id);
+                //     return Result<Guid>.Failure("Responder is already assigned to this incident.");
+                // }
 
+                //incident.AssignResponder(responder.Id, request.Model.Role);
+                var incidentResponder = new IncidentResponder(incident.Id, responder.Id, request.Model.Role);
+
+                await _incidentResponderRepository.AddAsync(incidentResponder);
+
+                incident.MarkAsReport();
+
+                responder.UpdateResponderStatus(ResponderStatus.OnDuty);
                 incident.MarkUpdated();
                 responder.MarkUpdated();
 
-                await _incidentRepository.UpdateAsync(incident);
-                await _responderRepository.UpdateAsync(responder);
+                // await _incidentRepository.UpdateAsync(incident);
+                // await _responderRepository.UpdateAsync(responder);
 
                 var auditLog = new AuditLog(
                     AuditActionType.Updated,
@@ -95,7 +109,8 @@ namespace Application.Features.Incidents.Commands.AssignResponder
                 await _auditLogRepository.AddAsync(auditLog);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                _logger.LogInformation("Successfully assigned responder {ResponderId} to incident {IncidentId}", responder.Id, incident.Id);
+                _logger.LogInformation("Responder {ResponderId} successfully assigned to incident {IncidentId}.", responder.Id, incident.Id);
+
                 return Result<Guid>.Success(incident.Id, "Responder assigned successfully.");
             }
             catch (BusinessRuleException ex)

@@ -13,15 +13,17 @@ namespace Application.Features.Incidents.Commands.AcceptIncident
     public class AcceptIncidentCommandHandler : IRequestHandler<AcceptIncidentCommand, Result<Guid>>
     {
         private readonly IIncidentRepository _incidentRepository;
+        private readonly IIncidentResponderRepository _incidentResponderRepository;
         private readonly ICurrentUserService _currentUserService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<AcceptIncidentCommandHandler> _logger;
         private readonly IAuditLogRepository _auditLogRepository;
         private readonly IResponderRepository _responderRepository;
 
-        public AcceptIncidentCommandHandler(IIncidentRepository incidentRepository, ICurrentUserService currentUserService, IUnitOfWork unitOfWork, ILogger<AcceptIncidentCommandHandler> logger, IAuditLogRepository auditLogRepository, IResponderRepository responderRepository)
+        public AcceptIncidentCommandHandler(IIncidentRepository incidentRepository, IIncidentResponderRepository incidentResponderRepository, ICurrentUserService currentUserService, IUnitOfWork unitOfWork, ILogger<AcceptIncidentCommandHandler> logger, IAuditLogRepository auditLogRepository, IResponderRepository responderRepository)
         {
             _incidentRepository = incidentRepository;
+            _incidentResponderRepository = incidentResponderRepository;
             _currentUserService = currentUserService;
             _unitOfWork = unitOfWork;
             _logger = logger;
@@ -71,11 +73,16 @@ namespace Application.Features.Incidents.Commands.AcceptIncident
                     return Result<Guid>.Failure("Responder is not available or not verified.");
                 }
 
-                incident.AssignResponder(responder.Id, ResponderRole.Primary);
+                // incident.AssignResponder(responder.Id, ResponderRole.Primary);
+                var incidentResponder = new IncidentResponder(incident.Id, responder.Id, ResponderRole.Primary);
+
+                await _incidentResponderRepository.AddAsync(incidentResponder);
+
+                incident.MarkAsReport();
                 responder.UpdateResponderStatus(ResponderStatus.OnDuty);
 
-                incident.MarkUpdated();
-                responder.MarkUpdated();
+                // incident.MarkUpdated();
+                // responder.MarkUpdated();
 
                 await _incidentRepository.UpdateAsync(incident);
                 await _responderRepository.UpdateAsync(responder);

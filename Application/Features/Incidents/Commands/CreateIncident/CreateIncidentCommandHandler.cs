@@ -71,9 +71,9 @@ namespace Application.Features.Incidents.Commands.CreateIncident
                         _logger.LogWarning("CreateIncidentCommand received with null VictimDetails.");
                         return Result<Guid>.Failure("Invalid victim details.");
                     }
-                    incident.SetVictimDetails(request.Model.VictimDetails!.Name, request.Model.VictimDetails.PhoneNumber!, request.Model.VictimDetails.Email, request.Model.VictimDetails.Description);
+                    incident.SetVictimDetails(request.Model.VictimDetails.Name, request.Model.VictimDetails.PhoneNumber!, request.Model.VictimDetails.Email, request.Model.VictimDetails.Description);
                 }
-                else
+                else if (!request.Model.IsAuthenticatedUser)
                 {
                     if (request.Model.VictimDetails == null)
                     {

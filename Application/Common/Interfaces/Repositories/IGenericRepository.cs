@@ -8,6 +8,8 @@ namespace Application.Common.Interfaces.Repositories
         Task AddAsync(T entity);
         Task UpdateAsync(T entity);
         Task<T?> GetAsync(Guid id);
+        Task<T?> GetForUpdateAsync(Guid id);
+        void Attach(T entity);
         Task DeleteAsync(T entity);
         // Task<bool> ExistsAsync(Guid id);
         Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> expression);

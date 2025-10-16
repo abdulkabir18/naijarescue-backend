@@ -1,5 +1,6 @@
 using Domain.Common;
 using Domain.Enums;
+using Domain.Events;
 
 namespace Domain.Entities
 {
@@ -22,6 +23,8 @@ namespace Domain.Entities
             ResponderId = responderId;
             Role = role;
             IsActive = true;
+
+            AddDomainEvent(new ResponderAssignedToIncidentEvent(Id, responderId, role));
         }
 
         public void Deactivate() => IsActive = false;
